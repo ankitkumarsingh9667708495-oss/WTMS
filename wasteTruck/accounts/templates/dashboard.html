@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WTMS Dashboard</title>
+</head>
+
+<body>
+
+    <h1>WTMS Dashboard</h1>
+
+    <h2>Welcome, {{ request.user.username }}</h2>
+
+    <p>Your role: {{ request.user.role }}</p>
+
+    <a href="{% url 'logout' %}">Logout</a>
+
+</body>
+</html>
