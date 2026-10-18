@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import RegistrationForm
+from .decorators import role_required
 
 # Create your views here.
 
@@ -20,6 +21,8 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
+            if user.role == 'admin':
+                return redirect('admin_dashboard')
             return redirect('dashboard')
 
         else:
@@ -52,3 +55,7 @@ def register_view(request):
     return render(
         request, 'register.html', {'form':form}
     )
+
+@role_required('admin')
+def admin_dashboard(request):
+    return render(request, 'accounts/admin_dashboard.html')
