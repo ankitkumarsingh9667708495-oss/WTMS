@@ -1,28 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WTMS Registration</title>
-</head>
-<body>
+{% block title %}Sign Up | WTMS{% endblock %}
 
-    <h1>Waste Truck Management System</h1>
-    <h2>Create an Account</h2>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
+{% endblock %}
 
-    <form method="post">
-        {% csrf_token %}
+{% block content %}
+<main class="signup-container">
+    <section class="signup-card">
+        <h1>Create Account</h1>
+        <p class="subtitle">
+            Join the Waste Truck Management System
+        </p>
 
-        {{ form.as_p }}
+        {% if messages %}
+            {% for message in messages %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
 
-        <button type="submit">Register</button>
-    </form>
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
 
-    <p>
-        Already have an account?
-        <a href="{% url 'login' %}">Log in</a>
-    </p>
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                <input
+                    type="text"
+                    name="username"
+                    id="{{ form.username.id_for_label }}"
+                    value="{{ form.username.value|default_if_none:'' }}"
+                    placeholder="Choose a username"
+                    autocomplete="username"
+                    required
+                >
+                {% for error in form.username.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
 
-</body>
-</html>
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                <input
+                    type="email"
+                    name="email"
+                    id="{{ form.email.id_for_label }}"
+                    value="{{ form.email.value|default_if_none:'' }}"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                    required
+                >
+                {% for error in form.email.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">Password</label>
+                <div class="password-group">
+                    <input
+                        type="password"
+                        name="password1"
+                        id="{{ form.password1.id_for_label }}"
+                        placeholder="Create a password"
+                        autocomplete="new-password"
+                        required
+                    >
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        data-target="{{ form.password1.id_for_label }}"
+                        aria-label="Show password"
+                        aria-pressed="false"
+                    >Show</button>
+                </div>
+                {% for error in form.password1.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                <div class="password-group">
+                    <input
+                        type="password"
+                        name="password2"
+                        id="{{ form.password2.id_for_label }}"
+                        placeholder="Enter your password again"
+                        autocomplete="new-password"
+                        required
+                    >
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        data-target="{{ form.password2.id_for_label }}"
+                        aria-label="Show password"
+                        aria-pressed="false"
+                    >Show</button>
+                </div>
+                {% for error in form.password2.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {% for error in form.non_field_errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="signup-button">
+                Create Account
+            </button>
+        </form>
+
+        <p class="login-link">
+            Already have an account?
+            <a href="{% url 'login' %}">Log in</a>
+        </p>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/register.js' %}"></script>
+{% endblock %}

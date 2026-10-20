@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Staff Dashboard | WTMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/staff_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="staff-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <a href="{% url 'staff_dashboard' %}" class="brand">
+            <span class="brand-icon">♻</span>
+            <span>
+                <strong>WTMS</strong>
+                <small>Noida Authority</small>
+            </span>
+        </a>
+
+        <nav class="side-nav" aria-label="Main navigation">
+            <a href="{% url 'staff_dashboard' %}" class="nav-link active">
+                <span>▦</span> Dashboard
+            </a>
+            <a href="#trucks" class="nav-link">
+                <span>🚛</span> Trucks
+            </a>
+            <a href="#drivers" class="nav-link">
+                <span>♙</span> Drivers
+            </a>
+            <a href="#collections" class="nav-link">
+                <span>▤</span> Collections
+            </a>
+            <a href="#activity" class="nav-link">
+                <span>◷</span> Recent Activity
+            </a>
+            <a href="{% url 'logout' %}" class="nav-link logout-link">
+                <span>⇥</span> Logout
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="status-dot"></span>
+            WTMS System
+            <small>Operations Portal</small>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <button type="button" id="menuToggle"
+                    class="menu-toggle"
+                    aria-label="Toggle navigation"
+                    aria-expanded="false">
+                ☰
+            </button>
+
+            <div class="search-box">
+                <span>⌕</span>
+                <input type="search"
+                       id="dashboardSearch"
+                       placeholder="Search trucks or drivers..."
+                       aria-label="Search trucks or drivers">
+            </div>
+
+            <div class="profile">
+                <div class="profile-avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+                <div class="profile-info">
+                    <strong>{{ request.user.username }}</strong>
+                    <small>Staff</small>
+                </div>
+            </div>
+        </header>
+
+        <div class="staff_dashboard-content">
+
+            <!-- Page heading -->
+            <section class="page-heading">
+                <div>
+                    <p class="eyebrow">OPERATIONS PORTAL</p>
+                    <h1>Staff Dashboard</h1>
+                    <p class="page-description">
+                        Monitor trucks, drivers and waste collection activities.
+                    </p>
+                </div>
+                <div class="today-date" id="todayDate"></div>
+            </section>
+
+            <!-- Summary cards: temporary placeholders -->
+            <section class="stats-grid" aria-label="Operational summary">
+
+                <article class="stat-card">
+                    <div class="stat-icon green-icon">🚛</div>
+                    <div>
+                        <p>Total Trucks</p>
+                        <h2>—</h2>
+                        <small>Registered vehicles</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon blue-icon">✓</div>
+                    <div>
+                        <p>Active Trucks</p>
+                        <h2>—</h2>
+                        <small>Currently active</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon purple-icon">♙</div>
+                    <div>
+                        <p>Total Drivers</p>
+                        <h2>—</h2>
+                        <small>Registered drivers</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon orange-icon">▤</div>
+                    <div>
+                        <p>Today's Collections</p>
+                        <h2>—</h2>
+                        <small>Collection records today</small>
+                    </div>
+                </article>
+
+            </section>
+
+            <!-- Collection overview and recent activity -->
+            <section class="content-grid">
+
+                <article class="panel collection-panel" id="collections">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Collection Overview</h2>
+                            <p>Current collection activity</p>
+                        </div>
+                        <span class="panel-icon">▤</span>
+                    </div>
+
+                    <div class="collection-summary">
+                        <div class="progress-ring"
+                             style="--progress: 0%">
+                            <div class="progress-inner">
+                                <strong>—</strong>
+                                <span>Completed</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-legend">
+                            <div>
+                                <span class="legend-dot completed"></span>
+                                <span>Completed</span>
+                                <strong>—</strong>
+                            </div>
+                            <div>
+                                <span class="legend-dot pending"></span>
+                                <span>Pending</span>
+                                <strong>—</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="panel-note">
+                        Collection statistics will appear when the
+                        collection module is connected.
+                    </p>
+                </article>
+
+                <article class="panel activity-panel" id="activity">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Recent Activity</h2>
+                            <p>Latest operational updates</p>
+                        </div>
+                    </div>
+
+                    <div class="activity-list">
+                        <div class="empty-state">
+                            <span>◷</span>
+                            <p>No recent activity to display.</p>
+                            <small>
+                                Activity will appear here when recorded.
+                            </small>
+                        </div>
+                    </div>
+                </article>
+
+            </section>
+
+            <!-- Truck table: temporary empty state -->
+            <section class="panel table-panel" id="trucks">
+                <div class="panel-heading table-heading">
+                    <div>
+                        <h2>Truck Overview</h2>
+                        <p>Registered vehicles and current status</p>
+                    </div>
+                    <span class="record-count">0 records</span>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="truckTable">
+                        <thead>
+                            <tr>
+                                <th>Truck Number</th>
+                                <th>Type</th>
+                                <th>Fuel</th>
+                                <th>Capacity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="empty-table">
+                                    Truck data will appear here after
+                                    the Truck module is developed.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="table-hint">
+                    Truck information will be connected to the database later.
+                </p>
+            </section>
+
+            <!-- Driver table: temporary empty state -->
+            <section class="panel table-panel" id="drivers">
+                <div class="panel-heading table-heading">
+                    <div>
+                        <h2>Driver Directory</h2>
+                        <p>Registered drivers</p>
+                    </div>
+                    <span class="record-count">0 records</span>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="driverTable">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Account Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="empty-table">
+                                    Driver data will appear here when
+                                    driver management is implemented.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="staff_dashboard-footer">
+                WTMS · Waste Truck Management System
+                <span>Noida Authority Operations Portal</span>
+            </footer>
+
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/staff_dashboard.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,145 @@
+body {
+    /* background-image:
+        linear-gradient(
+            rgba(15, 23, 42, 0.30),
+            rgba(15, 23, 42, 0.30)
+        ),
+        url("../images/bgimg.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; */
+    background-image:
+        linear-gradient(
+            rgba(15, 23, 42, 0.30),
+            rgba(15, 23, 42, 0.30)
+        ),
+        url("../images/bgimg.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.login-container{
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+}
+
+
+/* Glassmorphism login card */
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 35px;
+    border-radius: 20px;
+
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+
+    color: white;
+}
+
+.login-card h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 30px;
+}
+
+.login-card .subtitle {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #f1f5f9;
+}
+
+.input-group {
+    margin-bottom: 18px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 10px;
+    outline: none;
+
+    background: rgba(255, 255, 255, 0.85);
+    color: #1f2937;
+}
+
+.input-group input:focus {
+    border-color: #86efac;
+    box-shadow: 0 0 0 3px rgba(134, 239, 172, 0.25);
+}
+
+.login-button {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: white;
+    font-weight: bold;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    opacity: 0.92;
+}
+
+.signup-link {
+    text-align: center;
+    margin-top: 22px;
+    color: white;
+}
+
+.signup-link a {
+    color: #bbf7d0;
+    font-weight: bold;
+}
+
+
+/* Password field with Show button inside */
+
+.password-group {
+    position: relative;
+}
+
+.password-group input {
+    padding-right: 80px;
+}
+
+#togglePassword {
+    position: absolute;
+    right: 45px;
+    top: 50%;
+    transform: translateY(37%);
+
+    margin: 0;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+
+    background: transparent;
+    color: #166534;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#togglePassword:hover {
+    background: rgba(22, 101, 52, 0.10);
+}
+

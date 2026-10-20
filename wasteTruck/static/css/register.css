@@ -1,0 +1,202 @@
+
+/* Same Noida background and green theme as login */
+
+body {
+    background-image:
+        linear-gradient(
+            rgba(15, 23, 42, 0.30),
+            rgba(15, 23, 42, 0.30)
+        ),
+        url("../images/bgimg.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Center the signup card */
+
+.signup-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 18px;
+}
+
+/* Glassmorphism card */
+
+.signup-card {
+    width: 100%;
+    max-width: 480px;
+    padding: 32px;
+    border-radius: 20px;
+
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+
+    color: #fff;
+}
+
+.signup-card h1 {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.signup-card .subtitle {
+    text-align: center;
+    color: #f1f5f9;
+    margin-bottom: 24px;
+}
+
+/* Form fields */
+
+.form-group {
+    margin-bottom: 17px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.form-group input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 13px 15px;
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 10px;
+    outline: none;
+
+    background: rgba(255, 255, 255, 0.90);
+    color: #1f2937;
+    font-size: 15px;
+}
+
+.form-group input:focus {
+    border-color: #86efac;
+    box-shadow: 0 0 0 3px rgba(134, 239, 172, 0.25);
+}
+
+/* Keep Show/Hide inside each password field */
+
+.password-group {
+    position: relative;
+}
+
+.password-group input {
+    padding-right: 85px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    margin: 0;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+
+    background: transparent;
+    color: #166534;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.toggle-password:hover {
+    background: rgba(22, 101, 52, 0.10);
+}
+
+/* Create Account button */
+
+.signup-button {
+    width: 100%;
+    margin-top: 5px;
+    padding: 14px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.signup-button:hover {
+    transform: translateY(-2px);
+    opacity: 0.92;
+}
+
+/* Login link */
+
+.login-link {
+    text-align: center;
+    margin-top: 22px;
+    color: #fff;
+}
+
+.login-link a {
+    color: #bbf7d0;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Validation and feedback messages */
+
+.field-error {
+    margin-top: 6px;
+    color: #fee2e2;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.message {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    overflow-wrap: anywhere;
+}
+
+.message.error {
+    color: #b91c1c;
+}
+
+.message.success {
+    color: #166534;
+}
+
+@media (max-width: 520px) {
+    .signup-card {
+        padding: 24px 20px;
+    }
+
+    .signup-card h1 {
+        font-size: 26px;
+    }
+
+    .signup-container {
+        padding: 18px 12px;
+    }
+}

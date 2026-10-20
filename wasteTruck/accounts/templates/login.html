@@ -1,36 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WTMS Login</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
 
-    <h1>Waste Truck Management System</h1>
-    <h2>Login</h2>
+{% block title %}Login | WTMS{% endblock %}
 
-    {% if messages %}
-        {% for message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
-    {% endif %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
 
-    <form method="post">
-        {% csrf_token %}
+{% block content %}
+<main class="login-container">
+    <section class="login-card">
 
-        <label>Username</label>
-        <input type="text" name="username" placeholder="Username" required>
+        <h1>Login</h1>
 
-        <br><br>
+        <p class="subtitle">
+            Welcome back! Please log in to your account.
+        </p>
 
-        <label>Password</label>
-        <input type="password" name="password" placeholder="Password" required>
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
 
-        <br><br>
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="{{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
 
-        <button type="submit">Login</button>
-        <pre>Didn't have account? <a href="{% url 'register' %}">signup</a></pre>
-    </form>
-</body>
-</html>
+            <div class="input-group">
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="User Name"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+
+            <div class="input-group">
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button
+                    type="button"
+                    id="togglePassword"
+                    aria-label="Show password"
+                    aria-pressed="false"
+                >
+                    Show
+                </button>
+            </div>
+
+            <button type="submit" class="login-button">
+                Login
+            </button>
+        </form>
+
+        <p class="signup-link">
+            Don't have an account?
+            <a href="{% url 'register' %}">Sign up</a>
+        </p>
+
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/login.js' %}"></script>
+{% endblock %}

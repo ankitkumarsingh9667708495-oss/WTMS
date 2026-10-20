@@ -1,0 +1,316 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Driver Dashboard | WTMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/driver_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="driver-layout">
+
+    <!-- Fixed Sidebar -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">W</div>
+            <div>
+                <h2>WTMS</h2>
+                <p>Noida Authority</p>
+            </div>
+        </div>
+
+        <div class="sidebar-label">WORKSPACE</div>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'driver_dashboard' %}" class="nav-link active">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
+
+            <a href="#my-truck" class="nav-link">
+                <span class="nav-icon">🚛</span>
+                My Truck
+            </a>
+
+            <a href="#route" class="nav-link">
+                <span class="nav-icon">↗</span>
+                Today's Route
+            </a>
+
+            <a href="#collections" class="nav-link">
+                <span class="nav-icon">♻</span>
+                Collections
+            </a>
+
+            <a href="#activity" class="nav-link">
+                <span class="nav-icon">◷</span>
+                Recent Activity
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-help">
+                <span class="help-icon">?</span>
+                <div>
+                    <strong>Need assistance?</strong>
+                    <p>Contact your supervisor</p>
+                </div>
+            </div>
+
+            <a href="{% url 'logout' %}" class="nav-link logout-link">
+                <span class="nav-icon">↪</span>
+                Logout
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Right Side: Only This Area Scrolls -->
+    <main class="main-content" id="mainContent">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button
+                    type="button"
+                    class="menu-toggle"
+                    id="menuToggle"
+                    aria-label="Open navigation menu"
+                    aria-expanded="false"
+                >
+                    ☰
+                </button>
+
+                <div>
+                    <p class="breadcrumb">Workspace / Driver</p>
+                    <h1>Driver Dashboard</h1>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <div class="date-display">
+                    <span>Today</span>
+                    <strong id="todayDate">Loading...</strong>
+                </div>
+
+                <div class="profile">
+                    <div class="profile-avatar">
+                        {{ request.user.username|first|upper }}
+                    </div>
+                    <div class="profile-details">
+                        <strong>{{ request.user.username }}</strong>
+                        <span>Driver</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+
+            <!-- Welcome -->
+            <section class="welcome-section" id="overview">
+                <div>
+                    <h2>Hello, {{ request.user.username }}! 👋</h2>
+                    <p>Here's your work overview for today.</p>
+                </div>
+
+                <span class="status-badge">
+                    <span class="status-dot"></span>
+                    Driver Portal
+                </span>
+            </section>
+
+            <!-- Statistics -->
+            <section class="stats-grid">
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Assigned Truck</span>
+                        <span class="stat-icon green-icon">🚛</span>
+                    </div>
+                    <h2>—</h2>
+                    <p>Truck number</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Today's Stops</span>
+                        <span class="stat-icon blue-icon">⌖</span>
+                    </div>
+                    <h2>—</h2>
+                    <p>Scheduled collection points</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Completed Stops</span>
+                        <span class="stat-icon orange-icon">✓</span>
+                    </div>
+                    <h2>—</h2>
+                    <p>Stops completed today</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Pending Stops</span>
+                        <span class="stat-icon purple-icon">◷</span>
+                    </div>
+                    <h2>—</h2>
+                    <p>Stops remaining</p>
+                </article>
+
+            </section>
+
+            <!-- Truck and Route -->
+            <section class="content-grid">
+
+                <article class="panel" id="my-truck">
+                    <div class="panel-header">
+                        <div>
+                            <h3>My Assigned Truck</h3>
+                            <p>Details of your assigned vehicle</p>
+                        </div>
+                        <span class="panel-icon">🚛</span>
+                    </div>
+
+                    <div class="truck-illustration">🚚</div>
+
+                    <div class="truck-details">
+                        <div>
+                            <span>Truck Number</span>
+                            <strong>Not assigned</strong>
+                        </div>
+                        <div>
+                            <span>Fuel Type</span>
+                            <strong>—</strong>
+                        </div>
+                        <div>
+                            <span>Truck Capacity</span>
+                            <strong>—</strong>
+                        </div>
+                        <div>
+                            <span>Vehicle Status</span>
+                            <strong class="neutral-status">Not available</strong>
+                        </div>
+                    </div>
+
+                    <p class="info-note">
+                        Your assigned vehicle details will appear here
+                        once they are connected to the system.
+                    </p>
+                </article>
+
+                <article class="panel" id="route">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Today's Route</h3>
+                            <p>Your scheduled collection route</p>
+                        </div>
+                        <span class="panel-icon">📍</span>
+                    </div>
+
+                    <div class="route-empty">
+                        <div class="empty-icon">⌖</div>
+                        <h4>No route assigned yet</h4>
+                        <p>
+                            Your supervisor's assigned route will
+                            appear here.
+                        </p>
+                    </div>
+
+                    <div class="route-footer">
+                        <span>Route progress</span>
+                        <strong>—</strong>
+                    </div>
+
+                    <div class="progress-track">
+                        <div class="progress-fill"></div>
+                    </div>
+                </article>
+
+            </section>
+
+            <!-- Collections -->
+            <section class="panel collections-panel" id="collections">
+                <div class="panel-header collections-header">
+                    <div>
+                        <h3>Collection Tasks</h3>
+                        <p>View your scheduled waste collection stops</p>
+                    </div>
+
+                    <input
+                        type="search"
+                        id="taskSearch"
+                        class="task-search"
+                        placeholder="Search collection tasks..."
+                        aria-label="Search collection tasks"
+                    >
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="data-table" id="taskTable">
+                        <thead>
+                            <tr>
+                                <th>Stop</th>
+                                <th>Location</th>
+                                <th>Waste Type</th>
+                                <th>Scheduled Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr class="empty-row">
+                                <td colspan="5">
+                                    <div class="table-empty">
+                                        <span>♻</span>
+                                        <strong>No collection tasks available</strong>
+                                        <p>Assigned tasks will appear here.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="panel activity-panel" id="activity">
+                <div class="panel-header">
+                    <div>
+                        <h3>Recent Activity</h3>
+                        <p>Your recent work updates</p>
+                    </div>
+                </div>
+
+                <div class="activity-empty">
+                    <span class="activity-icon">◷</span>
+                    <div>
+                        <strong>No recent activity</strong>
+                        <p>Your collection and route updates will appear here.</p>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="dashboard-footer">
+                <span>WTMS · Noida Authority</span>
+                <span>Driver Portal</span>
+            </footer>
+
+        </div>
+    </main>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/driver_dashboard.js' %}"></script>
+{% endblock %}

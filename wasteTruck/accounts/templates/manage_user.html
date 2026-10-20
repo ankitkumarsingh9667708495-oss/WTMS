@@ -1,0 +1,250 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Users | WTMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/manage_user.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="manage-layout">
+
+    <!-- Fixed sidebar -->
+    <aside class="manage-sidebar" id="manageSidebar">
+        <div class="manage-brand">
+            <div class="manage-brand-logo">W</div>
+            <div>
+                <h2>WTMS</h2>
+                <p>Noida Authority</p>
+            </div>
+        </div>
+
+        <p class="manage-sidebar-heading">ADMINISTRATION</p>
+
+        <nav class="manage-nav">
+            <a href="{% url 'admin_dashboard' %}" class="manage-nav-link">
+                <span>▦</span> Dashboard
+            </a>
+
+            <a href="{% url 'manage_user' %}" class="manage-nav-link active">
+                <span>♙</span> Manage Users
+            </a>
+        </nav>
+
+        <div class="manage-sidebar-bottom">
+            <div class="manage-help">
+                <strong>User Management</strong>
+                <p>Manage account access and roles.</p>
+            </div>
+
+            <a href="{% url 'logout' %}" class="manage-nav-link manage-logout">
+                <span>↪</span> Logout
+            </a>
+        </div>
+    </aside>
+
+    <div class="manage-overlay" id="manageOverlay"></div>
+
+    <!-- Scrollable content -->
+    <main class="manage-main">
+
+        <header class="manage-topbar">
+            <div class="manage-topbar-left">
+                <button
+                    type="button"
+                    id="manageMenuToggle"
+                    class="manage-menu-toggle"
+                    aria-label="Open navigation"
+                    aria-expanded="false"
+                >☰</button>
+
+                <div>
+                    <p class="manage-breadcrumb">Administration / Users</p>
+                    <h1>Manage Users</h1>
+                </div>
+            </div>
+
+            <div class="manage-profile">
+                <div class="manage-avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+                <div>
+                    <strong>{{ request.user.username }}</strong>
+                    <span>Administrator</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="manage-content">
+
+            <section class="manage-welcome">
+                <div>
+                    <h2>User Management</h2>
+                    <p>View registered accounts and manage their roles.</p>
+                </div>
+
+                <span class="manage-count">
+                    {{ users|length }} user{{ users|length|pluralize }}
+                </span>
+            </section>
+
+            <!-- Django messages -->
+            {% if messages %}
+            <div class="manage-messages">
+                {% for message in messages %}
+                <div class="manage-message {{ message.tags }}">
+                    <span>{{ message }}</span>
+                    <button
+                        type="button"
+                        class="dismiss-message"
+                        aria-label="Dismiss message"
+                    >×</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- User table -->
+            <section class="manage-panel">
+
+                <div class="manage-panel-heading">
+                    <div>
+                        <h3>Registered Users</h3>
+                        <p>Search accounts and update staff or driver roles.</p>
+                    </div>
+
+                    <input
+                        type="search"
+                        id="userSearch"
+                        class="user-search"
+                        placeholder="Search username or email..."
+                        aria-label="Search users"
+                    >
+                </div>
+
+                <div class="manage-table-wrapper">
+                    <table class="manage-table" id="userTable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Current Role</th>
+                                <th>Date Joined</th>
+                                <th>Update Role</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for user in users %}
+                            <tr class="user-row">
+                                <td>
+                                    <div class="manage-user-cell">
+                                        <span class="manage-user-avatar">
+                                            {{ user.username|first|upper }}
+                                        </span>
+
+                                        <div>
+                                            <strong>{{ user.username }}</strong>
+                                            <span class="user-id">
+                                                ID: {{ user.id }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>{{ user.email|default:"—" }}</td>
+
+                                <td>
+                                    <span class="manage-role-badge role-{{ user.role }}">
+                                        {{ user.get_role_display }}
+                                    </span>
+                                </td>
+
+                                <td>{{ user.date_joined|date:"d M Y" }}</td>
+
+                                <td>
+                                    {% if user.role == 'admin' %}
+                                        <span class="protected-account">
+                                            Protected
+                                        </span>
+                                    {% else %}
+                                        <form
+                                            method="POST"
+                                            action="{% url 'manage_user' %}"
+                                            class="role-form"
+                                        >
+                                            {% csrf_token %}
+
+                                            <input
+                                                type="hidden"
+                                                name="user_id"
+                                                value="{{ user.id }}"
+                                            >
+
+                                            <select
+                                                name="role"
+                                                class="role-select"
+                                                aria-label="Select role for {{ user.username }}"
+                                            >
+                                                <option
+                                                    value="staff"
+                                                    {% if user.role == 'staff' %}selected{% endif %}
+                                                >
+                                                    Staff
+                                                </option>
+
+                                                <option
+                                                    value="driver"
+                                                    {% if user.role == 'driver' %}selected{% endif %}
+                                                >
+                                                    Driver
+                                                </option>
+                                            </select>
+
+                                            <button type="submit" class="save-role-btn">
+                                                Save
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="manage-empty">
+                                    No registered users found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div id="noSearchResults" class="no-search-results" hidden>
+                        No users match your search.
+                    </div>
+                </div>
+
+                <div class="manage-table-footer">
+                    <span>Role changes apply when you save the selected role.</span>
+                    <span>Admin accounts are protected on this page.</span>
+                </div>
+
+            </section>
+
+            <footer class="manage-footer">
+                <span>WTMS · Noida Authority</span>
+                <span>User Administration</span>
+            </footer>
+
+        </div>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/manage_user.js' %}"></script>
+{% endblock %}
