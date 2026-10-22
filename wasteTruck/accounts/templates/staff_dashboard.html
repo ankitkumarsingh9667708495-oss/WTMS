@@ -36,6 +36,9 @@
             <a href="#activity" class="nav-link">
                 <span>◷</span> Recent Activity
             </a>
+            <a href="{% url 'collection_assignment_create' %}" class="nav-link">
+                <span>＋</span> Assign Collection
+            </a>
             <a href="{% url 'logout' %}" class="nav-link logout-link">
                 <span>⇥</span> Logout
             </a>
@@ -79,7 +82,6 @@
         </header>
 
         <div class="staff_dashboard-content">
-
             <!-- Page heading -->
             <section class="page-heading">
                 <div>
@@ -88,9 +90,17 @@
                     <p class="page-description">
                         Monitor trucks, drivers and waste collection activities.
                     </p>
+
+                    <!-- Create Collection Assignment Button -->
+                    <a href="{% url 'collection_assignment_create' %}"
+                    class="assignment-shortcut">
+                        + Create Collection Assignment
+                    </a>
                 </div>
+
                 <div class="today-date" id="todayDate"></div>
             </section>
+
 
             <!-- Summary cards: temporary placeholders -->
             <section class="stats-grid" aria-label="Operational summary">

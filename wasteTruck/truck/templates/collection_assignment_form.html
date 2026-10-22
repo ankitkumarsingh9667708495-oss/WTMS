@@ -1,0 +1,103 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | WTMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/collection_assignment.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="assignment-page">
+    <div class="assignment-header">
+        <p class="eyebrow">OPERATIONS PORTAL</p>
+        <h1>{{ title }}</h1>
+        <p>Assign an available truck and driver to a waste collection route.</p>
+    </div>
+
+    <div class="assignment-card">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.driver.id_for_label }}">
+                    Select Driver
+                </label>
+                {{ form.driver }}
+                {% for error in form.driver.errors %}
+                    <small class="error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.truck.id_for_label }}">
+                    Select Truck
+                </label>
+                {{ form.truck }}
+                {% for error in form.truck.errors %}
+                    <small class="error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.route.id_for_label }}">
+                    Collection Route / Area
+                </label>
+                {{ form.route }}
+                {% for error in form.route.errors %}
+                    <small class="error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.scheduled_date.id_for_label }}">
+                    Scheduled Date
+                </label>
+                {{ form.scheduled_date }}
+                {% for error in form.scheduled_date.errors %}
+                    <small class="error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">
+                    Create Assignment
+                </button>
+
+                <a href="{% url 'staff_dashboard' %}"
+                   class="cancel-btn">
+                    Back to Dashboard
+                </a>
+            </div>
+        </form>
+
+        {% if not form.fields.driver.queryset.exists %}
+            <p class="availability-note">
+                No eligible drivers are currently available.
+            </p>
+        {% endif %}
+
+        {% if not form.fields.truck.queryset.exists %}
+            <p class="availability-note">
+                No eligible trucks are currently available.
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

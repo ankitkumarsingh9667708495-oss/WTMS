@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 
@@ -52,6 +53,13 @@ class Truck(models.Model):
 
 
 class Driver(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='driver_profile'
+    )
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('inactive', 'Inactive'),
@@ -84,3 +92,38 @@ class Driver(models.Model):
 
     def __str__(self):
         return self.full_name
+
+
+class CollectionAssignment(models.Model):
+    STATUS_CHOICES = [
+        ('assigned', 'Assigned'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+    ]
+
+    driver = models.ForeignKey(
+        Driver,
+        on_delete=models.PROTECT,
+        related_name='collection_assignments'
+    )
+
+    truck = models.ForeignKey(
+        Truck,
+        on_delete=models.PROTECT,
+        related_name='collection_assignments'
+    )
+
+    route = models.CharField(max_length=200)
+
+    scheduled_date = models.DateField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='assigned'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.driver.full_name} - {self.truck.truck_number} - {self.scheduled_date}"

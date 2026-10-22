@@ -1,6 +1,6 @@
 from django import forms
 from django.db.models import Q
-from .models import Truck, Driver
+from .models import Truck, Driver, CollectionAssignment
 
 
 class TruckForm(forms.ModelForm):
@@ -98,3 +98,35 @@ class DriverForm(forms.ModelForm):
                 attrs={'rows': 3}
             ),
         }
+
+class CollectionAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = CollectionAssignment
+        fields = ['driver', 'truck', 'route', 'scheduled_date']
+        widgets = {
+            'scheduled_date': forms.DateInput(
+                attrs={'type': 'date'}
+            ),
+            'route': forms.TextInput(attrs={
+                'placeholder': 'e.g. Sector 62, Noida'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        busy_driver_ids = CollectionAssignment.objects.filter(
+        status__in=['assigned', 'in_progress']
+        ).values_list('driver_id', flat=True)
+
+        drivers_with_trucks = Truck.objects.filter(
+            assigned_driver__isnull=False
+        ).values_list('assigned_driver_id', flat=True)
+
+        self.fields['driver'].queryset = Driver.objects.filter(
+            status='active'
+        ).exclude(
+            id__in=busy_driver_ids
+        ).exclude(
+            id__in=drivers_with_trucks
+        ).order_by('full_name')

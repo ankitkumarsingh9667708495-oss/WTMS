@@ -3,11 +3,14 @@
 
 {% block title %}{{ title }} | WTMS{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/user_form.css' %}">
+{% endblock %}
 
+{% block content %}
 <div class="user-form-page">
     <div class="user-form-card">
+
         <div class="user-form-header">
             <div class="user-form-icon">＋</div>
             <div>
@@ -18,7 +21,15 @@
 
         <div class="user-form-divider"></div>
 
-        <form method="POST" id="userRegistrationForm" novalidate>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="form-alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" id="userRegistrationForm">
             {% csrf_token %}
 
             {% if form.non_field_errors %}
@@ -27,16 +38,41 @@
                 </div>
             {% endif %}
 
+            <h3>Account Details</h3>
+
             <div class="django-form-fields">
                 {{ form.as_p }}
             </div>
 
-            <p class="form-feedback" id="formFeedback" aria-live="polite"></p>
+            {% if driver_form %}
+                <div id="driverDetailsSection">
+                    <div class="user-form-divider"></div>
+
+                    <h3>Driver Details</h3>
+                    <p>Enter the driver's personal and licence information.</p>
+
+                    {% if driver_form.non_field_errors %}
+                        <div class="form-alert">
+                            {{ driver_form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="django-form-fields">
+                        {{ driver_form.as_p }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <p class="form-feedback"
+               id="formFeedback"
+               aria-live="polite"></p>
 
             <div class="user-form-actions">
-                <a href="{% url 'manage_user' %}" class="cancel-btn">
-                    Cancel
+                <a href="{% url 'admin_dashboard' %}"
+                   class="cancel-btn">
+                    Back to Admin Dashboard
                 </a>
+
                 <button type="submit" class="save-btn">
                     Save Account
                 </button>
@@ -46,4 +82,31 @@
 </div>
 
 <script src="{% static 'js/user_form.js' %}" defer></script>
+
+{% if driver_form %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const roleField = document.getElementById('id_role');
+    const driverSection = document.getElementById('driverDetailsSection');
+
+    if (!roleField || !driverSection) return;
+
+    function toggleDriverDetails() {
+        const isDriver = roleField.value === 'driver';
+
+        driverSection.style.display = isDriver ? 'block' : 'none';
+
+        driverSection.querySelectorAll('input, select, textarea').forEach(
+            function (field) {
+                field.required = isDriver;
+            }
+        );
+    }
+
+    roleField.addEventListener('change', toggleDriverDetails);
+    toggleDriverDetails();
+});
+</script>
+{% endif %}
+
 {% endblock %}

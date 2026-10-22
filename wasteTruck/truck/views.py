@@ -3,9 +3,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from accounts.decorators import role_required
 from django.views.decorators.http import require_POST
-
-from .models import Truck, Driver
-from .forms import TruckForm, DriverForm
+from django.db import transaction
+from .models import Truck, Driver, CollectionAssignment
+from .forms import TruckForm, DriverForm, CollectionAssignmentForm
 
 
 @login_required
@@ -185,3 +185,36 @@ def driver_delete(request, pk):
     )
 
     return redirect('driver_list')
+
+@login_required
+@role_required('staff', 'admin')
+def collection_assignment_create(request):
+    if request.method == 'POST':
+        form = CollectionAssignmentForm(request.POST)
+
+        if form.is_valid():
+            with transaction.atomic():
+                assignment = form.save()
+
+                # Keep the truck-driver relationship consistent
+                # with the existing availability logic.
+                truck = assignment.truck
+                truck.assigned_driver = assignment.driver
+                truck.save(update_fields=['assigned_driver'])
+
+            messages.success(
+                request,
+                'Collection assignment created successfully.'
+            )
+            return redirect('collection_assignment_create')
+    else:
+        form = CollectionAssignmentForm()
+
+    return render(
+        request,
+        'collection_assignment_form.html',
+        {
+            'form': form,
+            'title': 'Create Collection Assignment',
+        }
+    )

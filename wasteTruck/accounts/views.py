@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import RegistrationForm, AdminUserCreationForm, AdminUserEditForm
+from .forms import RegistrationForm, AdminUserCreationForm, AdminUserEditForm, DriverDetailsForm
 from .decorators import role_required
 from .models import User
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.db import transaction
+from truck.models import Driver
 
 # Create your views here.
 
@@ -57,49 +59,56 @@ def admin_dashboard(request):
     return render(request, 'admin_dashboard.html', context)
 
 
-
+@login_required
 @role_required('admin')
 def manage_user(request):
-
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
         role = request.POST.get('role')
 
-        # Validate the selected role
         if role not in ['staff', 'driver']:
             messages.error(request, 'Invalid role selected.')
             return redirect('manage_user')
 
-        # Find the selected user
         try:
             selected_user = User.objects.get(id=user_id)
         except (User.DoesNotExist, ValueError, TypeError):
             messages.error(request, 'User not found.')
             return redirect('manage_user')
 
-        # Prevent changing an existing admin's role
-        if selected_user.role == 'admin':
+        if selected_user.role == 'admin' or selected_user.is_superuser:
             messages.error(
                 request,
                 'Admin roles cannot be changed here.'
             )
             return redirect('manage_user')
 
-        # Save the new role
-        selected_user.role = role
+        if selected_user.role == role:
+            messages.info(
+                request,
+                f'{selected_user.username} already has this role.'
+            )
+            return redirect('manage_user')
+
+        if role == 'driver':
+            messages.info(
+                request,
+                'Please complete the driver details before saving the role.'
+            )
+            return redirect('user_edit', pk=selected_user.pk)
+
+        selected_user.role = 'staff'
         selected_user.save(update_fields=['role'])
 
         messages.success(
             request,
-            f'{selected_user.username} role updated successfully.'
+            f'{selected_user.username} role updated to Staff.'
         )
-
         return redirect('manage_user')
 
-    # Display all users for GET requests
     users = User.objects.all().order_by('username')
-
     return render(request, 'manage_user.html', {'users': users})
+
 
 @login_required
 @role_required('staff')
@@ -117,19 +126,49 @@ def driver_dashboard(request):
 def user_create(request):
     if request.method == 'POST':
         form = AdminUserCreationForm(request.POST)
+        driver_form = DriverDetailsForm(request.POST)
 
         if form.is_valid():
-            user = form.save()
-            messages.success(
-                request,
-                f'{user.username} account created successfully.'
-            )
-            return redirect('manage_user')
+            role = form.cleaned_data['role']
+
+            if role == 'driver' and not driver_form.is_valid():
+                return render(request, 'user_form.html', {
+                    'form': form,
+                    'driver_form': driver_form,
+                    'title': 'Create User Account',
+                })
+
+            try:
+                with transaction.atomic():
+                    user = form.save(commit=False)
+                    user.role = role
+                    user.save()
+
+                    if role == 'driver':
+                        driver = driver_form.save(commit=False)
+                        driver.user = user
+                        driver.save()
+
+                messages.success(
+                    request,
+                    f'{user.username} account created successfully.'
+                )
+                return redirect('manage_user')
+
+            except Exception as e:
+                messages.error(
+                    request,
+                    'Could not create the account. '
+                    'Check that the phone number and licence number '
+                    'are not already registered.'
+                )
     else:
         form = AdminUserCreationForm()
+        driver_form = DriverDetailsForm()
 
     return render(request, 'user_form.html', {
         'form': form,
+        'driver_form': driver_form,
         'title': 'Create User Account',
     })
 
@@ -143,23 +182,58 @@ def user_edit(request, pk):
         messages.error(request, 'Admin accounts are protected.')
         return redirect('manage_user')
 
+    driver_instance = Driver.objects.filter(user=user).first()
+
     if request.method == 'POST':
         form = AdminUserEditForm(request.POST, instance=user)
+        driver_form = DriverDetailsForm(
+            request.POST,
+            instance=driver_instance
+        )
 
         if form.is_valid():
-            form.save()
-            messages.success(
-                request,
-                f'{user.username} account updated successfully.'
-            )
-            return redirect('manage_user')
+            role = form.cleaned_data['role']
+
+            if role == 'driver' and not driver_form.is_valid():
+                return render(request, 'user_form.html', {
+                    'form': form,
+                    'driver_form': driver_form,
+                    'title': 'Edit User Account',
+                })
+
+            try:
+                with transaction.atomic():
+                    updated_user = form.save(commit=False)
+                    updated_user.role = role
+                    updated_user.save()
+
+                    if role == 'driver':
+                        driver = driver_form.save(commit=False)
+                        driver.user = updated_user
+                        driver.save()
+
+                messages.success(
+                    request,
+                    f'{updated_user.username} account updated successfully.'
+                )
+                return redirect('manage_user')
+
+            except Exception:
+                messages.error(
+                    request,
+                    'Could not update the account. Check for duplicate '
+                    'phone or licence numbers.'
+                )
     else:
         form = AdminUserEditForm(instance=user)
+        driver_form = DriverDetailsForm(instance=driver_instance)
 
     return render(request, 'user_form.html', {
         'form': form,
+        'driver_form': driver_form,
         'title': 'Edit User Account',
     })
+
 
 
 @login_required

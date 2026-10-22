@@ -488,3 +488,18 @@ tbody tr:hover { background: #f8fafc; }
     .search-box { padding: 10px; }
     .search-box input { font-size: 12px; }
 }
+
+.assignment-shortcut {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    background: #15803d;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.assignment-shortcut:hover {
+    background: #166534;
+}
