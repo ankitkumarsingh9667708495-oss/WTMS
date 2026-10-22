@@ -48,3 +48,19 @@ body {
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
+
+.status-available {
+    color: #15803d;
+    background-color: #dcfce7;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+}
+
+.status-unavailable {
+    color: #b91c1c;
+    background-color: #fee2e2;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+}

@@ -1,0 +1,54 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | WTMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/driver_form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="driver-form-page">
+    <section class="driver-form-card">
+
+        <header class="driver-form-header">
+            <h1>{{ title }}</h1>
+            <p class="driver-form-description">
+                Enter the driver's details below. Fields with validation
+                errors must be corrected before saving.
+            </p>
+        </header>
+
+        <form method="POST" id="driverForm">
+            {% csrf_token %}
+
+            <div class="driver-form-fields">
+                {{ form.as_p }}
+            </div>
+
+            <div class="driver-form-actions">
+                <button
+                    type="submit"
+                    id="driverSubmitButton"
+                    class="driver-save-btn"
+                >
+                    Save Driver
+                </button>
+
+                <a
+                    href="{% url 'driver_list' %}"
+                    class="driver-cancel-btn"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/driver_form.js' %}" defer></script>
+{% endblock %}

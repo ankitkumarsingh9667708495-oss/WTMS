@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import RegistrationForm
+from .forms import RegistrationForm, AdminUserCreationForm, AdminUserEditForm
 from .decorators import role_required
 from .models import User
+from django.views.decorators.http import require_POST
 from django.utils import timezone
 
 # Create your views here.
@@ -39,24 +40,6 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
-
-def register_view(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Registration sucessfull! Please log in")
-            return redirect('login')
-        else:
-            print(form.errors)
-
-    else:
-        form = RegistrationForm()
-
-    return render(
-        request, 'register.html', {'form':form}
-    )
 
 
 @role_required('admin')
@@ -127,3 +110,73 @@ def staff_dashboard(request):
 @role_required('driver')
 def driver_dashboard(request):
     return render(request, "driver_dashboard.html")
+
+
+@login_required
+@role_required('admin')
+def user_create(request):
+    if request.method == 'POST':
+        form = AdminUserCreationForm(request.POST)
+
+        if form.is_valid():
+            user = form.save()
+            messages.success(
+                request,
+                f'{user.username} account created successfully.'
+            )
+            return redirect('manage_user')
+    else:
+        form = AdminUserCreationForm()
+
+    return render(request, 'user_form.html', {
+        'form': form,
+        'title': 'Create User Account',
+    })
+
+
+@login_required
+@role_required('admin')
+def user_edit(request, pk):
+    user = get_object_or_404(User, pk=pk)
+
+    if user.role == 'admin' or user.is_superuser:
+        messages.error(request, 'Admin accounts are protected.')
+        return redirect('manage_user')
+
+    if request.method == 'POST':
+        form = AdminUserEditForm(request.POST, instance=user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                f'{user.username} account updated successfully.'
+            )
+            return redirect('manage_user')
+    else:
+        form = AdminUserEditForm(instance=user)
+
+    return render(request, 'user_form.html', {
+        'form': form,
+        'title': 'Edit User Account',
+    })
+
+
+@login_required
+@role_required('admin')
+@require_POST
+def user_delete(request, pk):
+    user = get_object_or_404(User, pk=pk)
+
+    if user.role == 'admin' or user.is_superuser:
+        messages.error(request, 'Admin accounts cannot be deleted here.')
+        return redirect('manage_user')
+
+    username = user.username
+    user.delete()
+
+    messages.success(
+        request,
+        f'{username} account deleted successfully.'
+    )
+    return redirect('manage_user')

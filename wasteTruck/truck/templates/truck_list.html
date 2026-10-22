@@ -1,0 +1,226 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Truck Management | WTMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/truck_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="truck-page">
+
+    <div class="truck-page-header">
+        <div>
+            <h1>Truck Management</h1>
+            <p class="truck-page-subtitle">
+                Manage trucks, assignments and availability.
+            </p>
+        </div>
+
+        <a href="{% url 'truck_create' %}" class="truck-primary-btn">
+            + Register New Truck
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="truck-message">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <section class="truck-filter-panel">
+        <h2>Search and Filter Trucks</h2>
+
+        <form method="GET"
+              action="{% url 'truck_list' %}"
+              class="truck-filter-form">
+
+            <input
+                type="text"
+                name="search"
+                placeholder="Search truck number..."
+                value="{{ search_query }}"
+                aria-label="Search by truck number"
+            >
+
+            <select name="status" aria-label="Filter by status">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}"
+                        {% if selected_status == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="fuel_type" aria-label="Filter by fuel type">
+                <option value="">All Fuel Types</option>
+                {% for value, label in fuel_choices %}
+                    <option value="{{ value }}"
+                        {% if selected_fuel_type == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="waste_type" aria-label="Filter by waste type">
+                <option value="">All Waste Types</option>
+                {% for value, label in waste_choices %}
+                    <option value="{{ value }}"
+                        {% if selected_waste_type == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="truck-search-btn">
+                Search
+            </button>
+
+            <a href="{% url 'truck_list' %}" class="truck-reset-btn">
+                Reset
+            </a>
+        </form>
+    </section>
+
+    <section class="truck-table-card">
+        <div class="truck-table-heading">
+            <h2>Registered Trucks</h2>
+            <span class="truck-table-count">
+                {{ trucks|length }} truck{{ trucks|length|pluralize }}
+            </span>
+        </div>
+
+        <div class="truck-table-wrapper">
+            <table class="truck-table">
+                <thead>
+                    <tr>
+                        <th>Truck Number</th>
+                        <th>Type</th>
+                        <th>Capacity</th>
+                        <th>Status</th>
+                        <th>Waste Type</th>
+                        <th>Fuel Type</th>
+                        <th>PUC Date</th>
+                        <th>Assigned Driver</th>
+                        <th>Availability</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for truck in trucks %}
+                    <tr>
+                        <td class="truck-number">
+                            {{ truck.truck_number }}
+                        </td>
+
+                        <td>{{ truck.truck_type }}</td>
+                        <td>{{ truck.capacity }}</td>
+
+                        <td>
+                            {% if truck.status == 'active' %}
+                                <span class="truck-badge truck-status-active">
+                                    {{ truck.get_status_display }}
+                                </span>
+                            {% elif truck.status == 'maintenance' %}
+                                <span class="truck-badge truck-status-maintenance">
+                                    {{ truck.get_status_display }}
+                                </span>
+                            {% else %}
+                                <span class="truck-badge truck-status-inactive">
+                                    {{ truck.get_status_display }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ truck.get_compatible_waste_type_display }}</td>
+                        <td>{{ truck.get_fuel_type_display }}</td>
+                        <td>{{ truck.puc|default:"—" }}</td>
+
+                        <td>
+                            {% if truck.assigned_driver %}
+                                {{ truck.assigned_driver.full_name }}
+                            {% else %}
+                                <span class="truck-muted">Not Assigned</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if truck.is_available %}
+                                <span class="truck-badge status-available">
+                                    Available
+                                </span>
+                            {% else %}
+                                <span class="truck-badge status-unavailable">
+                                    Unavailable
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="truck-action-group">
+                                <a href="{% url 'truck_edit' truck.pk %}"
+                                   class="truck-action-btn truck-edit-btn">
+                                    Edit
+                                </a>
+                                
+                                <button type="button" class="truck-action-btn truck-delete-btn" data-delete-url="{% url 'truck_delete' truck.pk %}" data-truck-number="{{ truck.truck_number|escape }}" onclick="openTruckDeleteModal(this)">
+                                    Delete
+                                </button>
+
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="truck-empty-state">
+                            No trucks found. Try changing your filters
+                            or register a new truck.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- Truck Delete Confirmation Modal -->
+            <div id="truckDeleteModal" class="truck-modal" aria-hidden="true">
+                <div class="truck-modal-content" role="dialog" aria-modal="true" aria-labelledby="truckModalTitle" aria-describedby="truckModalMessage" >
+                    <div class="truck-modal-icon">!</div>
+
+                    <h3 id="truckModalTitle">Delete Truck?</h3>
+
+                    <p id="truckModalMessage">
+                        Are you sure you want to delete this truck?
+                        This action cannot be undone.
+                    </p>
+
+                    <p class="truck-modal-number" id="truckModalNumber"></p>
+
+                    <form id="truckDeleteForm" method="POST">
+                        {% csrf_token %}
+
+                        <div class="truck-modal-actions">
+                            <button type="button" class="truck-modal-cancel" onclick="closeTruckDeleteModal()" >
+                                Cancel
+                            </button>
+
+                            <button type="submit" class="truck-modal-confirm" id="truckModalConfirm" >
+                                Delete Truck
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/truck_list.js' %}" defer></script>
+{% endblock %}

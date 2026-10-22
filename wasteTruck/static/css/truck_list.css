@@ -1,0 +1,439 @@
+
+/* ===== Truck Management Page ===== */
+
+.truck-page {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    color: #1e293b;
+}
+
+.truck-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.truck-page-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.truck-page-subtitle {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.truck-primary-btn,
+.truck-search-btn,
+.truck-reset-btn,
+.truck-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.truck-primary-btn,
+.truck-search-btn {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.truck-primary-btn:hover,
+.truck-search-btn:hover {
+    background: #1d4ed8;
+}
+
+.truck-filter-panel {
+    padding: 20px;
+    margin-bottom: 24px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.truck-filter-panel h2 {
+    margin: 0 0 16px;
+    font-size: 17px;
+    color: #1e293b;
+}
+
+.truck-filter-form {
+    display: grid;
+    grid-template-columns: minmax(200px, 1.5fr) repeat(3, minmax(140px, 1fr)) auto auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.truck-filter-form input,
+.truck-filter-form select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    color: #334155;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font: inherit;
+    font-size: 14px;
+}
+
+.truck-filter-form input:focus,
+.truck-filter-form select:focus {
+    outline: 3px solid rgba(37, 99, 235, 0.13);
+    border-color: #2563eb;
+}
+
+.truck-reset-btn {
+    background: #f1f5f9;
+    color: #334155;
+    border-color: #e2e8f0;
+}
+
+.truck-reset-btn:hover {
+    background: #e2e8f0;
+}
+
+.truck-message {
+    margin: 0 0 16px;
+    padding: 12px 15px;
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    transition: opacity 0.3s ease;
+}
+
+.truck-message.is-hidden {
+    opacity: 0;
+}
+
+.truck-table-card {
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+.truck-table-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.truck-table-heading h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.truck-table-count {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.truck-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.truck-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.truck-table thead {
+    background: #f8fafc;
+}
+
+.truck-table th {
+    padding: 14px 16px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.truck-table td {
+    padding: 15px 16px;
+    font-size: 14px;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.truck-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.truck-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.truck-number {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.truck-muted {
+    color: #94a3b8;
+}
+
+.truck-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.truck-status-active,
+.status-available {
+    color: #15803d;
+    background: #dcfce7;
+}
+
+.truck-status-inactive {
+    color: #475569;
+    background: #e2e8f0;
+}
+
+.truck-status-maintenance,
+.status-unavailable {
+    color: #b91c1c;
+    background: #fee2e2;
+}
+
+.truck-action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.truck-action-btn {
+    padding: 7px 10px;
+    font-size: 13px;
+}
+
+.truck-edit-btn {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-color: #dbeafe;
+}
+
+.truck-edit-btn:hover {
+    background: #dbeafe;
+}
+
+.truck-delete-btn {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #fee2e2;
+}
+
+.truck-delete-btn:hover {
+    background: #fee2e2;
+}
+
+.truck-empty-state {
+    padding: 35px 20px !important;
+    color: #64748b !important;
+    text-align: center;
+    white-space: normal;
+}
+
+@media (max-width: 1150px) {
+    .truck-filter-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .truck-page {
+        padding: 20px 12px;
+    }
+
+    .truck-page-header h1 {
+        font-size: 23px;
+    }
+
+    .truck-filter-panel {
+        padding: 15px;
+    }
+
+    .truck-filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    .truck-primary-btn,
+    .truck-search-btn,
+    .truck-reset-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .truck-table-heading {
+        padding: 15px;
+    }
+}
+
+
+/* ===== Truck Delete Confirmation Modal ===== */
+
+.truck-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(3px);
+}
+
+.truck-modal.is-open {
+    display: flex;
+}
+
+.truck-modal-content {
+    width: 100%;
+    max-width: 430px;
+    padding: 30px;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: truckModalAppear 0.2s ease-out;
+}
+
+.truck-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.truck-modal-content h3 {
+    margin: 0 0 12px;
+    color: #0f172a;
+    font-size: 22px;
+}
+
+.truck-modal-content p {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.truck-modal-number {
+    margin: 16px 0;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #1e293b !important;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.truck-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.truck-modal-actions button {
+    min-height: 42px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.truck-modal-cancel {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.truck-modal-cancel:hover {
+    background: #cbd5e1;
+}
+
+.truck-modal-confirm {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.truck-modal-confirm:hover {
+    background: #b91c1c;
+}
+
+.truck-modal-confirm:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+body.truck-modal-open {
+    overflow: hidden;
+}
+
+@keyframes truckModalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    .truck-modal-content {
+        padding: 24px 18px;
+    }
+
+    .truck-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .truck-modal-actions button {
+        width: 100%;
+    }
+}

@@ -53,13 +53,7 @@
 
         <header class="manage-topbar">
             <div class="manage-topbar-left">
-                <button
-                    type="button"
-                    id="manageMenuToggle"
-                    class="manage-menu-toggle"
-                    aria-label="Open navigation"
-                    aria-expanded="false"
-                >☰</button>
+                <button type="button" id="manageMenuToggle" class="manage-menu-toggle" aria-label="Open navigation" aria-expanded="false" >☰</button>
 
                 <div>
                     <p class="manage-breadcrumb">Administration / Users</p>
@@ -86,6 +80,7 @@
                     <p>View registered accounts and manage their roles.</p>
                 </div>
 
+                <a href="{% url 'user_create' %}" class="save-role-btn"> + Create User </a>
                 <span class="manage-count">
                     {{ users|length }} user{{ users|length|pluralize }}
                 </span>
@@ -97,11 +92,7 @@
                 {% for message in messages %}
                 <div class="manage-message {{ message.tags }}">
                     <span>{{ message }}</span>
-                    <button
-                        type="button"
-                        class="dismiss-message"
-                        aria-label="Dismiss message"
-                    >×</button>
+                    <button type="button" class="dismiss-message" aria-label="Dismiss message" >×</button>
                 </div>
                 {% endfor %}
             </div>
@@ -116,13 +107,7 @@
                         <p>Search accounts and update staff or driver roles.</p>
                     </div>
 
-                    <input
-                        type="search"
-                        id="userSearch"
-                        class="user-search"
-                        placeholder="Search username or email..."
-                        aria-label="Search users"
-                    >
+                    <input type="search" id="userSearch" class="user-search" placeholder="Search username or email..." aria-label="Search users" >
                 </div>
 
                 <div class="manage-table-wrapper">
@@ -134,6 +119,7 @@
                                 <th>Current Role</th>
                                 <th>Date Joined</th>
                                 <th>Update Role</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
 
@@ -171,35 +157,17 @@
                                             Protected
                                         </span>
                                     {% else %}
-                                        <form
-                                            method="POST"
-                                            action="{% url 'manage_user' %}"
-                                            class="role-form"
-                                        >
+                                        <form method="POST" action="{% url 'manage_user' %}" class="role-form" >
                                             {% csrf_token %}
 
-                                            <input
-                                                type="hidden"
-                                                name="user_id"
-                                                value="{{ user.id }}"
-                                            >
+                                            <input type="hidden" name="user_id" value="{{ user.id }}" >
 
-                                            <select
-                                                name="role"
-                                                class="role-select"
-                                                aria-label="Select role for {{ user.username }}"
-                                            >
-                                                <option
-                                                    value="staff"
-                                                    {% if user.role == 'staff' %}selected{% endif %}
-                                                >
+                                            <select name="role" class="role-select" aria-label="Select role for {{ user.username }}" >
+                                                <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>
                                                     Staff
                                                 </option>
 
-                                                <option
-                                                    value="driver"
-                                                    {% if user.role == 'driver' %}selected{% endif %}
-                                                >
+                                                <option value="driver" {% if user.role == 'driver' %}selected{% endif %}>
                                                     Driver
                                                 </option>
                                             </select>
@@ -210,11 +178,30 @@
                                         </form>
                                     {% endif %}
                                 </td>
+                                
+                                <td>
+                                    {% if user.role == 'admin' or user.is_superuser %}
+                                        <span class="protected-account">Protected</span>
+                                    {% else %}
+                                        <div class="user-actions">
+                                            <a href="{% url 'user_edit' user.pk %}" class="edit-btn" >
+                                                Edit
+                                            </a>
+
+                                            <form method="POST" action="{% url 'user_delete' user.pk %}" onsubmit="return confirm('Delete this user account? This action cannot be undone.');" >
+                                                {% csrf_token %}
+                                                <button type="submit" class="delete-btn">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </td>
                             </tr>
 
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="manage-empty">
+                                <td colspan="6" class="manage-empty">
                                     No registered users found.
                                 </td>
                             </tr>

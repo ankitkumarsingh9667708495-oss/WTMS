@@ -1,0 +1,53 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | WTMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/truck_form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="truck-form-page">
+    <section class="truck-form-card">
+
+        <header class="truck-form-header">
+            <h1>{{ title }}</h1>
+            <p class="truck-form-description">
+                Enter the truck details below and save your changes.
+            </p>
+        </header>
+
+        <form method="POST" id="truckForm">
+            {% csrf_token %}
+
+            <div class="truck-form-fields">
+                {{ form.as_p }}
+            </div>
+
+            <div class="truck-form-actions">
+                <button
+                    type="submit"
+                    id="truckSubmitButton"
+                    class="truck-save-btn"
+                >
+                    Save Truck
+                </button>
+
+                <a
+                    href="{% url 'truck_list' %}"
+                    class="truck-cancel-btn"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/truck_form.js' %}" defer></script>
+{% endblock %}

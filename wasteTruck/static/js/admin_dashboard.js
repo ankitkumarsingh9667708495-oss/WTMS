@@ -1,47 +1,61 @@
 
+/* =========================================
+   WTMS Admin Dashboard
+   static/js/admin_dashboard.js
+========================================= */
+
 document.addEventListener("DOMContentLoaded", function () {
+    const layout = document.querySelector(".admin-layout");
     const sidebar = document.getElementById("adminSidebar");
-    const menuToggle = document.getElementById("adminMenuToggle");
     const overlay = document.getElementById("adminOverlay");
+    const menuToggle = document.getElementById("adminMenuToggle");
+
+    if (!layout || !sidebar || !overlay || !menuToggle) {
+        return;
+    }
 
     function openSidebar() {
-        if (!sidebar || !menuToggle || !overlay) return;
-
-        sidebar.classList.add("open");
-        overlay.classList.add("visible");
+        layout.classList.add("sidebar-open");
         menuToggle.setAttribute("aria-expanded", "true");
+        menuToggle.setAttribute("aria-label", "Close navigation");
+        document.body.style.overflow = "hidden";
     }
 
     function closeSidebar() {
-        if (!sidebar || !menuToggle || !overlay) return;
-
-        sidebar.classList.remove("open");
-        overlay.classList.remove("visible");
+        layout.classList.remove("sidebar-open");
         menuToggle.setAttribute("aria-expanded", "false");
+        menuToggle.setAttribute("aria-label", "Open navigation");
+        document.body.style.overflow = "";
     }
 
-    if (menuToggle) {
-        menuToggle.addEventListener("click", function () {
-            if (sidebar && sidebar.classList.contains("open")) {
-                closeSidebar();
-            } else {
-                openSidebar();
-            }
-        });
+    function toggleSidebar() {
+        if (layout.classList.contains("sidebar-open")) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
     }
 
-    if (overlay) {
-        overlay.addEventListener("click", closeSidebar);
-    }
+    menuToggle.addEventListener("click", toggleSidebar);
 
-    window.addEventListener("resize", function () {
-        if (window.innerWidth > 760) {
+    overlay.addEventListener("click", closeSidebar);
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
             closeSidebar();
         }
     });
 
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape") {
+    // Close the mobile sidebar after choosing a navigation link.
+    sidebar.querySelectorAll(".admin-nav-link").forEach(function (link) {
+        link.addEventListener("click", function () {
+            closeSidebar();
+        });
+    });
+
+    // If the screen is resized to desktop, reset mobile menu state.
+    window.addEventListener("resize", function () {
+        if (window.innerWidth > 768) {
             closeSidebar();
         }
     });

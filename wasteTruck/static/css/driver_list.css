@@ -1,0 +1,367 @@
+
+/* ===== Driver Management Page ===== */
+
+.driver-page {
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    color: #1e293b;
+}
+
+.driver-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.driver-page-header h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.driver-subtitle {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.driver-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 16px;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.driver-primary-btn:hover {
+    background: #1d4ed8;
+}
+
+.driver-table-card {
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+.driver-table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.driver-table-toolbar h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.driver-search {
+    width: 280px;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 14px;
+}
+
+.driver-search:focus {
+    outline: 3px solid rgba(37, 99, 235, 0.13);
+    border-color: #2563eb;
+}
+
+.driver-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.driver-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.driver-table thead {
+    background: #f8fafc;
+}
+
+.driver-table th {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.driver-table td {
+    padding: 15px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 14px;
+}
+
+.driver-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.driver-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.driver-name {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.driver-muted {
+    color: #94a3b8;
+}
+
+.driver-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.driver-status-active,
+.status-available {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.driver-status-inactive,
+.status-unavailable {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.driver-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.driver-action-btn {
+    display: inline-block;
+    padding: 7px 10px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.driver-edit-btn {
+    border-color: #dbeafe;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.driver-edit-btn:hover {
+    background: #dbeafe;
+}
+
+.driver-delete-btn {
+    border-color: #fee2e2;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.driver-delete-btn:hover {
+    background: #fee2e2;
+}
+
+.driver-empty-state {
+    padding: 35px 20px !important;
+    color: #64748b !important;
+    text-align: center;
+    white-space: normal;
+}
+
+.driver-no-search-results {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .driver-page {
+        padding: 20px 12px;
+    }
+
+    .driver-page-header h1 {
+        font-size: 23px;
+    }
+
+    .driver-primary-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .driver-table-toolbar {
+        padding: 15px;
+    }
+
+    .driver-search {
+        width: 100%;
+    }
+}
+
+
+/* ===== Driver Delete Confirmation Modal ===== */
+
+.driver-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(3px);
+}
+
+.driver-modal.is-open {
+    display: flex;
+}
+
+.driver-modal-content {
+    width: 100%;
+    max-width: 430px;
+    padding: 30px;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: driverModalAppear 0.2s ease-out;
+}
+
+.driver-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.driver-modal-content h3 {
+    margin: 0 0 12px;
+    color: #0f172a;
+    font-size: 22px;
+}
+
+.driver-modal-content p {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.driver-modal-name {
+    margin: 16px 0;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #1e293b !important;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.driver-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.driver-modal-actions button {
+    min-height: 42px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.driver-modal-cancel {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.driver-modal-cancel:hover {
+    background: #cbd5e1;
+}
+
+.driver-modal-confirm {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.driver-modal-confirm:hover {
+    background: #b91c1c;
+}
+
+.driver-modal-confirm:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+body.driver-modal-open {
+    overflow: hidden;
+}
+
+@keyframes driverModalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    .driver-modal-content {
+        padding: 24px 18px;
+    }
+
+    .driver-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .driver-modal-actions button {
+        width: 100%;
+    }
+}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | WTMS{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/user_form.css' %}">
+
+<div class="user-form-page">
+    <div class="user-form-card">
+        <div class="user-form-header">
+            <div class="user-form-icon">＋</div>
+            <div>
+                <h1>{{ title }}</h1>
+                <p>Create or update a WTMS user account.</p>
+            </div>
+        </div>
+
+        <div class="user-form-divider"></div>
+
+        <form method="POST" id="userRegistrationForm" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="django-form-fields">
+                {{ form.as_p }}
+            </div>
+
+            <p class="form-feedback" id="formFeedback" aria-live="polite"></p>
+
+            <div class="user-form-actions">
+                <a href="{% url 'manage_user' %}" class="cancel-btn">
+                    Cancel
+                </a>
+                <button type="submit" class="save-btn">
+                    Save Account
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/user_form.js' %}" defer></script>
+{% endblock %}
