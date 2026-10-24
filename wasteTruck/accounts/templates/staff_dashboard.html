@@ -24,13 +24,13 @@
             <a href="{% url 'staff_dashboard' %}" class="nav-link active">
                 <span>▦</span> Dashboard
             </a>
-            <a href="#trucks" class="nav-link">
+            <a href="{% url 'truck_list' %}" class="nav-link">
                 <span>🚛</span> Trucks
             </a>
-            <a href="#drivers" class="nav-link">
+            <a href="{% url 'driver_list' %}" class="nav-link">
                 <span>♙</span> Drivers
             </a>
-            <a href="#collections" class="nav-link">
+            <a href="{% url 'collection_assignment_list' %}" class="nav-link">
                 <span>▤</span> Collections
             </a>
             <a href="#activity" class="nav-link">
@@ -55,20 +55,22 @@
     <main class="main-content">
 
         <header class="topbar">
-            <button type="button" id="menuToggle"
-                    class="menu-toggle"
-                    aria-label="Toggle navigation"
-                    aria-expanded="false">
+            <button type="button" id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-expanded="false">
                 ☰
             </button>
 
-            <div class="search-box">
+            <form class="search-box" id="dashboardSearchForm">
                 <span>⌕</span>
-                <input type="search"
-                       id="dashboardSearch"
-                       placeholder="Search trucks or drivers..."
-                       aria-label="Search trucks or drivers">
-            </div>
+
+                <input
+                    type="search"
+                    id="dashboardSearch"
+                    placeholder="Search trucks or drivers..."
+                    aria-label="Search trucks or drivers"
+                >
+
+                <button type="submit">Search</button>
+            </form>
 
             <div class="profile">
                 <div class="profile-avatar">
@@ -109,7 +111,7 @@
                     <div class="stat-icon green-icon">🚛</div>
                     <div>
                         <p>Total Trucks</p>
-                        <h2>—</h2>
+                        <h2>{{ total_trucks }}</h2>
                         <small>Registered vehicles</small>
                     </div>
                 </article>
@@ -118,7 +120,7 @@
                     <div class="stat-icon blue-icon">✓</div>
                     <div>
                         <p>Active Trucks</p>
-                        <h2>—</h2>
+                        <h2>{{ active_trucks }}</h2>
                         <small>Currently active</small>
                     </div>
                 </article>
@@ -127,7 +129,7 @@
                     <div class="stat-icon purple-icon">♙</div>
                     <div>
                         <p>Total Drivers</p>
-                        <h2>—</h2>
+                        <h2>{{ total_drivers }}</h2>
                         <small>Registered drivers</small>
                     </div>
                 </article>
@@ -136,7 +138,7 @@
                     <div class="stat-icon orange-icon">▤</div>
                     <div>
                         <p>Today's Collections</p>
-                        <h2>—</h2>
+                        <h2>{{ todays_collections }}</h2>
                         <small>Collection records today</small>
                     </div>
                 </article>
@@ -157,9 +159,9 @@
 
                     <div class="collection-summary">
                         <div class="progress-ring"
-                             style="--progress: 0%">
+                             style="--progress: {{ completion_percent }}%">
                             <div class="progress-inner">
-                                <strong>—</strong>
+                                <strong>{{ completion_percent }}%</strong>
                                 <span>Completed</span>
                             </div>
                         </div>
@@ -168,19 +170,18 @@
                             <div>
                                 <span class="legend-dot completed"></span>
                                 <span>Completed</span>
-                                <strong>—</strong>
+                                <strong>{{ completed_collections }}</strong>
                             </div>
                             <div>
                                 <span class="legend-dot pending"></span>
                                 <span>Pending</span>
-                                <strong>—</strong>
+                                <strong>{{ pending_collections }}</strong>
                             </div>
                         </div>
                     </div>
 
                     <p class="panel-note">
-                        Collection statistics will appear when the
-                        collection module is connected.
+                        Overview of collection assignment and their current progress.
                     </p>
                 </article>
 
@@ -193,14 +194,36 @@
                     </div>
 
                     <div class="activity-list">
-                        <div class="empty-state">
-                            <span>◷</span>
-                            <p>No recent activity to display.</p>
-                            <small>
-                                Activity will appear here when recorded.
-                            </small>
-                        </div>
+                        {% for activity in recent_activities %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    {% if activity.action == 'collection_assigned' %}
+                                        +
+                                    {% elif activity.action == 'collection_completed' %}
+                                        ✓
+                                    {% elif activity.action == 'truck_added' %}
+                                        🚛
+                                    {% elif activity.action == 'driver_added' %}
+                                        ♙
+                                    {% else %}
+                                        •
+                                    {% endif %}
+                                </div>
+
+                                <div class="activity-details">
+                                    <p>{{ activity.description }}</p>
+                                    <small>{{ activity.created_at|date:"d M Y, h:i A" }}</small>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="empty-state">
+                                <span>◷</span>
+                                <p>No recent activity to display.</p>
+                                <small>Activities will appear here when recorded.</small>
+                            </div>
+                        {% endfor %}
                     </div>
+
                 </article>
 
             </section>
@@ -212,7 +235,7 @@
                         <h2>Truck Overview</h2>
                         <p>Registered vehicles and current status</p>
                     </div>
-                    <span class="record-count">0 records</span>
+                    <span class="record-count">{{ total_trucks }}</span>
                 </div>
 
                 <div class="table-wrapper">
@@ -227,18 +250,27 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td colspan="5" class="empty-table">
-                                    Truck data will appear here after
-                                    the Truck module is developed.
-                                </td>
-                            </tr>
+                            {% for truck in trucks %}
+                                <tr>
+                                    <td>{{ truck.truck_number }}</td>
+                                    <td>{{ truck.truck_type }}</td>
+                                    <td>{{ truck.get_fuel_type_display }}</td>
+                                    <td>{{ truck.capacity }}</td>
+                                    <td>{{ truck.get_status_display }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="empty-table">
+                                        No trucks registered yet.
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
 
                 <p class="table-hint">
-                    Truck information will be connected to the database later.
+                    Showing registered trucks and their current status.
                 </p>
             </section>
 
@@ -249,7 +281,7 @@
                         <h2>Driver Directory</h2>
                         <p>Registered drivers</p>
                     </div>
-                    <span class="record-count">0 records</span>
+                    <span class="record-count">{{ total_drivers }}</span>
                 </div>
 
                 <div class="table-wrapper">
@@ -261,14 +293,33 @@
                                 <th>Account Status</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="3" class="empty-table">
-                                    Driver data will appear here when
-                                    driver management is implemented.
-                                </td>
-                            </tr>
-                        </tbody>
+                            <tbody>
+                                {% for driver in drivers %}
+                                    <tr>
+                                        <td>
+                                            {% if driver.user %}
+                                                {{ driver.user.username }}
+                                            {% else %}
+                                                {{ driver.full_name }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if driver.user %}
+                                                {{ driver.user.email|default:"—" }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ driver.get_status_display }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="empty-table">
+                                            No driver registered yet.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
                     </table>
                 </div>
             </section>
@@ -286,4 +337,21 @@
 
 {% block extra_js %}
 <script src="{% static 'js/staff_dashboard.js' %}"></script>
+<script>
+    const truckSearchUrl = "{% url 'truck_list' %}";
+
+    document.getElementById("dashboardSearchForm")
+        ?.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const query = document.getElementById(
+                "dashboardSearch"
+            ).value.trim();
+
+            if (!query) return;
+
+            window.location.href =
+                truckSearchUrl + "?search=" + encodeURIComponent(query);
+        });
+</script>
 {% endblock %}

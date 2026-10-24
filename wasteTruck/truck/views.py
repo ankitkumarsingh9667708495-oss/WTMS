@@ -3,9 +3,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from accounts.decorators import role_required
 from django.views.decorators.http import require_POST
-from django.db import transaction
-from .models import Truck, Driver, CollectionAssignment
+from django.db import transaction, models
+from .models import Truck, Driver, CollectionAssignment, Activity
 from .forms import TruckForm, DriverForm, CollectionAssignmentForm
+from django.utils import timezone
 
 
 @login_required
@@ -56,6 +57,7 @@ def truck_list(request):
 
 
 
+
 @login_required
 @role_required('staff', 'admin')
 def truck_create(request):
@@ -63,8 +65,20 @@ def truck_create(request):
         form = TruckForm(request.POST)
 
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Truck registered successfully.')
+            truck = form.save()
+
+            Activity.objects.create(
+                action='truck_added',
+                description=(
+                    f'Truck {truck.truck_number} was registered '
+                    f'successfully.'
+                )
+            )
+
+            messages.success(
+                request,
+                'Truck registered successfully.'
+            )
             return redirect('truck_list')
     else:
         form = TruckForm()
@@ -124,6 +138,7 @@ def driver_list(request):
     })
 
 
+
 @login_required
 @role_required('staff', 'admin')
 def driver_create(request):
@@ -131,7 +146,16 @@ def driver_create(request):
         form = DriverForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            driver = form.save()
+
+            Activity.objects.create(
+                action='driver_added',
+                description=(
+                    f'Driver {driver.full_name} was registered '
+                    f'successfully.'
+                )
+            )
+
             messages.success(
                 request,
                 'Driver registered successfully.'
@@ -186,6 +210,7 @@ def driver_delete(request, pk):
 
     return redirect('driver_list')
 
+
 @login_required
 @role_required('staff', 'admin')
 def collection_assignment_create(request):
@@ -194,19 +219,98 @@ def collection_assignment_create(request):
 
         if form.is_valid():
             with transaction.atomic():
-                assignment = form.save()
+                # Lock the selected resources before rechecking availability.
+                driver = Driver.objects.select_for_update().get(
+                    pk=form.cleaned_data['driver'].pk
+                )
+                truck = Truck.objects.select_for_update().get(
+                    pk=form.cleaned_data['truck'].pk
+                )
 
-                # Keep the truck-driver relationship consistent
-                # with the existing availability logic.
-                truck = assignment.truck
-                truck.assigned_driver = assignment.driver
-                truck.save(update_fields=['assigned_driver'])
+                # Recheck driver availability inside the transaction.
+                if driver.status != 'active':
+                    form.add_error(
+                        'driver',
+                        'This driver is no longer active.'
+                    )
 
-            messages.success(
-                request,
-                'Collection assignment created successfully.'
-            )
-            return redirect('collection_assignment_create')
+                elif driver.license_expiry < timezone.localdate():
+                    form.add_error(
+                        'driver',
+                        'This driver has an expired licence and cannot be assigned.'
+                    )
+
+                elif Truck.objects.filter(
+                    assigned_driver=driver
+                ).exists():
+                    form.add_error(
+                        'driver',
+                        'This driver is already assigned to a truck.'
+                    )
+
+                elif CollectionAssignment.objects.filter(
+                    driver=driver,
+                    status__in=['assigned', 'in_progress']
+                ).exists():
+                    form.add_error(
+                        'driver',
+                        'This driver already has an ongoing collection.'
+                    )
+
+                # Recheck truck availability inside the transaction.
+                if truck.status != 'active':
+                    form.add_error(
+                        'truck',
+                        'This truck is no longer active.'
+                    )
+
+                elif truck.assigned_driver_id is not None:
+                    form.add_error(
+                        'truck',
+                        'This truck is already assigned to a driver.'
+                    )
+
+                elif CollectionAssignment.objects.filter(
+                    truck=truck,
+                    status__in=['assigned', 'in_progress']
+                ).exists():
+                    form.add_error(
+                        'truck',
+                        'This truck already has an ongoing collection.'
+                    )
+
+                # Save only if both resources remain available.
+                if not form.errors:
+                    assignment = form.save(commit=False)
+                    assignment.driver = driver
+                    assignment.truck = truck
+                    assignment.save()
+
+                    truck.assigned_driver = driver
+                    truck.save(update_fields=['assigned_driver'])
+
+                    Activity.objects.create(
+                        action='collection_assigned',
+                        description=(
+                            f'{driver.full_name} was assigned to '
+                            f'route {assignment.route} using truck '
+                            f'{truck.truck_number}.'
+                        )
+                    )
+
+            if form.errors:
+                messages.error(
+                    request,
+                    'The assignment could not be created. '
+                    'Please check the errors below.'
+                )
+            else:
+                messages.success(
+                    request,
+                    'Collection assignment created successfully.'
+                )
+                return redirect('collection_assignment_create')
+
     else:
         form = CollectionAssignmentForm()
 
@@ -218,3 +322,114 @@ def collection_assignment_create(request):
             'title': 'Create Collection Assignment',
         }
     )
+
+
+@login_required
+@role_required('staff', 'admin')
+def collection_assignment_list(request):
+    assignments = CollectionAssignment.objects.select_related(
+        'driver',
+        'truck'
+    ).order_by('-scheduled_date', '-created_at')
+
+    # Search by driver name, truck number, or route
+    search_query = request.GET.get('search', '').strip()
+
+    if search_query:
+        assignments = assignments.filter(
+            models.Q(driver__full_name__icontains=search_query) |
+            models.Q(truck__truck_number__icontains=search_query) |
+            models.Q(route__icontains=search_query)
+        )
+
+    # Filter by assignment status
+    status = request.GET.get('status', '')
+
+    if status:
+        assignments = assignments.filter(status=status)
+
+    context = {
+        'assignments': assignments,
+        'search_query': search_query,
+        'selected_status': status,
+        'status_choices': CollectionAssignment.STATUS_CHOICES,
+    }
+
+    return render(
+        request,
+        'collection_assignment_list.html',
+        context
+    )
+
+
+
+@login_required
+@role_required('staff', 'admin')
+@require_POST
+def collection_assignment_update_status(request, pk):
+    with transaction.atomic():
+        assignment = get_object_or_404(
+            CollectionAssignment.objects.select_for_update()
+            .select_related('truck', 'driver'),
+            pk=pk
+        )
+
+        new_status = request.POST.get('status')
+
+        allowed_transitions = {
+            'assigned': ['in_progress'],
+            'in_progress': ['completed'],
+            'completed': [],
+        }
+
+        if new_status not in allowed_transitions.get(
+            assignment.status, []
+        ):
+            messages.error(
+                request,
+                'Invalid assignment status change.'
+            )
+            return redirect('collection_assignment_list')
+
+        # Update the collection status.
+        assignment.status = new_status
+        assignment.save(update_fields=['status'])
+
+        # Release the truck when the collection is completed.
+        if new_status == 'completed':
+            truck = Truck.objects.select_for_update().get(
+                pk=assignment.truck_id
+            )
+
+            other_active_assignments = (
+                CollectionAssignment.objects.filter(
+                    truck_id=assignment.truck_id,
+                    status__in=['assigned', 'in_progress']
+                ).exclude(pk=assignment.pk)
+            )
+
+            # Clear the driver only if this truck is still
+            # assigned to the driver who completed this collection.
+            if (
+                not other_active_assignments.exists()
+                and truck.assigned_driver_id == assignment.driver_id
+            ):
+                truck.assigned_driver = None
+                truck.save(update_fields=['assigned_driver'])
+
+                Activity.objects.create(
+                    action='collection_completed',
+                    description=(
+                        f'{assignment.driver.full_name} completed the collection '
+                        f'for route {assignment.route} using truck '
+                        f'{truck.truck_number}.'
+                    )
+                )
+
+        messages.success(
+            request,
+            f'Assignment status updated to '
+            f'{assignment.get_status_display()}.'
+        )
+
+    return redirect('collection_assignment_list')

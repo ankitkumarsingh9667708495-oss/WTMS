@@ -503,3 +503,61 @@ tbody tr:hover { background: #f8fafc; }
 .assignment-shortcut:hover {
     background: #166534;
 }
+
+
+/* Dashboard Search */
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 42px;
+    padding: 4px 5px 4px 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.search-box > span {
+    color: #64748b;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.search-box input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.search-box input::placeholder {
+    color: #94a3b8;
+}
+
+.search-box button {
+    height: 32px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 7px;
+    background: #166534;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.search-box button:hover {
+    background: #14532d;
+}
+
+.search-box:focus-within {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}

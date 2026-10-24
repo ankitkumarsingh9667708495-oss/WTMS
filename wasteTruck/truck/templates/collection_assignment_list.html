@@ -1,0 +1,90 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Collection Assignments | WTMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Collection Assignments</h1>
+
+    <a href="{% url 'collection_assignment_create' %}">
+        + Create Assignment
+    </a>
+
+    <form method="GET">
+        <input
+            type="text"
+            name="search"
+            placeholder="Search driver, truck or route"
+            value="{{ search_query }}"
+        >
+
+        <select name="status">
+            <option value="">All Statuses</option>
+
+            {% for value, label in status_choices %}
+                <option
+                    value="{{ value }}"
+                    {% if selected_status == value %}selected{% endif %}
+                >
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Search / Filter</button>
+        <a href="{% url 'collection_assignment_list' %}">
+            Reset
+        </a>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Driver</th>
+                <th>Truck</th>
+                <th>Route</th>
+                <th>Scheduled Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for assignment in assignments %}
+                <tr>
+                    <td>{{ assignment.driver.full_name }}</td>
+                    <td>{{ assignment.truck.truck_number }}</td>
+                    <td>{{ assignment.route }}</td>
+                    <td>{{ assignment.scheduled_date|date:"d M Y" }}</td>
+                    <td>{{ assignment.get_status_display }}</td>
+                    <td>
+                        {% if assignment.status == 'assigned' or assignment.status == 'in_progress' %}
+                            <form
+                                method="POST"
+                                action="{% url 'collection_assignment_update_status' assignment.pk %}"
+                            >
+                                {% csrf_token %}
+
+                                {% if assignment.status == 'assigned' %}
+                                    <input type="hidden" name="status" value="in_progress">
+                                    <button type="submit">Start Collection</button>
+                                {% elif assignment.status == 'in_progress' %}
+                                    <input type="hidden" name="status" value="completed">
+                                    <button type="submit">Mark Completed</button>
+                                {% endif %}
+                            </form>
+                        {% else %}
+                            Completed
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6">No collection assignments found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

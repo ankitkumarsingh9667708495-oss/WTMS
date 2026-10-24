@@ -11,4 +11,7 @@ urlpatterns = [
     path('drivers/edit/<int:pk>/', views.driver_edit, name='driver_edit'),
     path('drivers/delete/<int:pk>/', views.driver_delete,  name='driver_delete'),
     path('assignments/add/', views.collection_assignment_create, name = 'collection_assignment_create'),
+    path('assignments/', views.collection_assignment_list, name = 'collection_assignment_list'),
+    path('assignments/add', views.collection_assignment_create, name = 'collection_assignment_create'),
+    path('assignments/<int:pk>/status/', views.collection_assignment_update_status, name='collection_assignment_update_status'),
 ]

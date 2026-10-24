@@ -67,3 +67,29 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+const dashboardSearchForm = document.getElementById(
+    "dashboardSearchForm"
+);
+
+const dashboardSearch = document.getElementById(
+    "dashboardSearch"
+);
+
+if (dashboardSearchForm && dashboardSearch) {
+    dashboardSearchForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const query = dashboardSearch.value.trim();
+
+        if (!query) {
+            dashboardSearch.focus();
+            return;
+        }
+
+        const targetUrl = "{% url 'truck_list' %}";
+
+        window.location.href =
+            targetUrl + "?search=" + encodeURIComponent(query);
+    });
+}

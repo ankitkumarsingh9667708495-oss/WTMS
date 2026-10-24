@@ -127,3 +127,22 @@ class CollectionAssignment(models.Model):
 
     def __str__(self):
         return f"{self.driver.full_name} - {self.truck.truck_number} - {self.scheduled_date}"
+
+
+class Activity(models.Model):
+    ACTION_CHOICES = [
+        ('truck_added', 'Truck Added'),
+        ('driver_added', 'Driver Added'),
+        ('collection_assigned', 'Collection Assigned'),
+        ('collection_completed', 'Collection Completed'),
+    ]
+
+    action = models.CharField(
+        max_length=30,
+        choices=ACTION_CHOICES
+    )
+    description = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.description

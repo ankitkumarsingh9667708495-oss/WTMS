@@ -8,7 +8,8 @@ from .models import User
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.db import transaction
-from truck.models import Driver
+from truck.models import Driver, Truck, CollectionAssignment, Activity
+from django.db.models import Count, Q
 
 # Create your views here.
 
@@ -110,10 +111,66 @@ def manage_user(request):
     return render(request, 'manage_user.html', {'users': users})
 
 
+
 @login_required
 @role_required('staff')
 def staff_dashboard(request):
-    return render(request, 'staff_dashboard.html')
+    today = timezone.localdate()
+
+    # Truck statistics
+    trucks = Truck.objects.all().order_by('truck_number')
+    total_trucks = trucks.count()
+    active_trucks = trucks.filter(status='active').count()
+
+    # Driver statistics
+    drivers = Driver.objects.select_related('user').order_by('full_name')
+    total_drivers = drivers.count()
+    active_drivers = drivers.filter(status='active').count()
+
+    # Collection statistics
+    assignments = CollectionAssignment.objects.select_related(
+        'driver', 'truck'
+    )
+
+    todays_collections = assignments.filter(scheduled_date=today).count()
+    total_assignments = assignments.count()
+    completed_collections = assignments.filter(
+        status='completed'
+    ).count()
+
+    pending_collections = assignments.filter(
+        status='assigned'
+    ).count()
+
+    in_progress_collections = assignments.filter(
+        status='in_progress'
+    ).count()
+
+    completion_percent = (
+        round(completed_collections / total_assignments * 100)
+        if total_assignments else 0
+    )
+
+    recent_activities = Activity.objects.order_by('-created_at')[:5]
+
+    context = {
+        'recent_activities': recent_activities,
+        'total_trucks': total_trucks,
+        'active_trucks': active_trucks,
+        'total_drivers': total_drivers,
+        'active_drivers': active_drivers,
+        'todays_collections': todays_collections,
+        'total_assignments': total_assignments,
+        'completed_collections': completed_collections,
+        'pending_collections': pending_collections,
+        'in_progress_collections': in_progress_collections,
+        'completion_percent': completion_percent,
+        'trucks': trucks,
+        'drivers': drivers,
+    }
+
+    return render(request, 'staff_dashboard.html', context)
+
 
 @login_required
 @role_required('driver')
