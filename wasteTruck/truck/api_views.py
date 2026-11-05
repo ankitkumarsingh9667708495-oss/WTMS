@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdminOrStaff, IsAdminOnly
 
 from .models import Truck
 from .serializers import TruckSerializer
@@ -9,7 +11,7 @@ from .serializers import TruckSerializer
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminOrStaff])
 def truck_api_list(request):
     trucks = Truck.objects.all().order_by('truck_number')
 
@@ -20,7 +22,7 @@ def truck_api_list(request):
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminOrStaff])
 def truck_api_create(request):
 
     serializer = TruckSerializer(data=request.data)
@@ -41,7 +43,7 @@ def truck_api_create(request):
 
 @api_view(['PUT'])
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminOrStaff])
 def truck_api_update(request, pk):
 
     try:
@@ -69,7 +71,7 @@ def truck_api_update(request, pk):
 
 @api_view(['PATCH'])
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminOrStaff])
 def truck_api_partial_update(request, pk):
 
     try:
@@ -96,6 +98,8 @@ def truck_api_partial_update(request, pk):
     )
 
 @api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAdminOnly])
 def truck_api_delete(request, pk):
 
     try:
