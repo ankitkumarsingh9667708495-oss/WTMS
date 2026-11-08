@@ -172,10 +172,57 @@ def staff_dashboard(request):
     return render(request, 'staff_dashboard.html', context)
 
 
+
 @login_required
 @role_required('driver')
 def driver_dashboard(request):
-    return render(request, "driver_dashboard.html")
+
+    driver = request.user.driver_profile
+    assigned_truck = Truck.objects.filter(
+        assigned_driver=driver
+    ).first()
+
+    assignments = CollectionAssignment.objects.filter(
+        driver=driver
+    )
+    todays_assignments = assignments.filter(
+        scheduled_date=timezone.localdate()
+    ).order_by('created_at')
+    all_assignments = assignments.select_related(
+        'truck'
+    ).order_by('-scheduled_date')
+    recent_activities = Activity.objects.filter(
+        action='collection_completed',
+        description__icontains=driver.full_name
+    ).order_by('-created_at')[:5]
+
+    context = {
+        'driver': driver,
+        'total_assignments': assignments.count(),
+        'pending_assignments': assignments.filter(
+            status='assigned'
+        ).count(),
+        'in_progress_assignments': assignments.filter(
+            status='in_progress'
+        ).count(),
+        'completed_assignments': assignments.filter(
+            status='completed'
+        ).count(),
+        'recent_assignments': assignments.select_related(
+            'truck'
+        ).order_by('-created_at')[:5],
+        'assigned_truck': assigned_truck,
+        'todays_assignments': todays_assignments,
+        'all_assignments': all_assignments,
+        'recent_activities': recent_activities,
+    }
+
+    return render(
+        request,
+        "driver_dashboard.html",
+        context
+    )
+
 
 
 @login_required

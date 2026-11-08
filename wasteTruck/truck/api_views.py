@@ -729,3 +729,63 @@ def driver_update_assignment_status_api(request, pk):
         serializer = CollectionAssignmentSerializer(assignment)
 
         return Response(serializer.data, status=200)
+
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsDriver])
+def driver_dashboard_stats_api(request):
+
+    driver = request.user.driver_profile
+
+    total_assignments = CollectionAssignment.objects.filter(
+        driver=driver
+    ).count()
+
+    pending_assignments = CollectionAssignment.objects.filter(
+        driver=driver,
+        status='assigned'
+    ).count()
+
+    in_progress_assignments = CollectionAssignment.objects.filter(
+        driver=driver,
+        status='in_progress'
+    ).count()
+
+    completed_assignments = CollectionAssignment.objects.filter(
+        driver=driver,
+        status='completed'
+    ).count()
+
+    data = {
+        'total_assignments': total_assignments,
+        'pending_assignments': pending_assignments,
+        'in_progress_assignments': in_progress_assignments,
+        'completed_assignments': completed_assignments,
+    }
+
+    return Response(data, status=200)
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsDriver])
+def driver_dashboard_activities_api(request):
+
+    driver = request.user.driver_profile
+
+    activities = Activity.objects.filter(
+        action='collection_completed',
+        description__icontains=driver.full_name
+    ).order_by('-created_at')[:5]
+
+    data = []
+
+    for activity in activities:
+        data.append({
+            'id': activity.id,
+            'action': activity.action,
+            'description': activity.description,
+            'created_at': activity.created_at,
+        })
+
+    return Response(data, status=200)

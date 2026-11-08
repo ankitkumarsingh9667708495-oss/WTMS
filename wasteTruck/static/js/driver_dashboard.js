@@ -94,3 +94,29 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+// Collection Task Search
+const taskSearch = document.getElementById("taskSearch");
+const taskTable = document.getElementById("taskTable");
+
+if (taskSearch && taskTable) {
+
+    taskSearch.addEventListener("input", function () {
+
+        const searchValue = this.value.toLowerCase();
+
+        const rows = taskTable.querySelectorAll("tbody tr:not(.empty-row)");
+
+        rows.forEach(function (row) {
+
+            const rowText = row.textContent.toLowerCase();
+
+            row.style.display = rowText.includes(searchValue)
+                ? ""
+                : "none";
+
+        });
+
+    });
+
+}

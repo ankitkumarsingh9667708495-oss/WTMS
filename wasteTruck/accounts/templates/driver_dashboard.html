@@ -132,45 +132,44 @@
 
                 <article class="stat-card">
                     <div class="stat-top">
-                        <span class="stat-label">Assigned Truck</span>
-                        <span class="stat-icon green-icon">🚛</span>
+                        <span class="stat-label">Total Collections</span>
+                        <span class="stat-icon green-icon">♻</span>
                     </div>
-                    <h2>—</h2>
-                    <p>Truck number</p>
+                    <h2>{{ total_assignments }}</h2>
+                    <p>Assigned collection records</p>
                 </article>
 
                 <article class="stat-card">
                     <div class="stat-top">
-                        <span class="stat-label">Today's Stops</span>
-                        <span class="stat-icon blue-icon">⌖</span>
-                    </div>
-                    <h2>—</h2>
-                    <p>Scheduled collection points</p>
-                </article>
-
-                <article class="stat-card">
-                    <div class="stat-top">
-                        <span class="stat-label">Completed Stops</span>
-                        <span class="stat-icon orange-icon">✓</span>
-                    </div>
-                    <h2>—</h2>
-                    <p>Stops completed today</p>
-                </article>
-
-                <article class="stat-card">
-                    <div class="stat-top">
-                        <span class="stat-label">Pending Stops</span>
+                        <span class="stat-label">Pending Collections</span>
                         <span class="stat-icon purple-icon">◷</span>
                     </div>
-                    <h2>—</h2>
-                    <p>Stops remaining</p>
+                    <h2>{{ pending_assignments }}</h2>
+                    <p>Awaiting collection</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">In Progress</span>
+                        <span class="stat-icon blue-icon">↗</span>
+                    </div>
+                    <h2>{{ in_progress_assignments }}</h2>
+                    <p>Currently in progress</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Completed Collections</span>
+                        <span class="stat-icon orange-icon">✓</span>
+                    </div>
+                    <h2>{{ completed_assignments }}</h2>
+                    <p>Successfully completed</p>
                 </article>
 
             </section>
 
             <!-- Truck and Route -->
             <section class="content-grid">
-
                 <article class="panel" id="my-truck">
                     <div class="panel-header">
                         <div>
@@ -182,39 +181,94 @@
 
                     <div class="truck-illustration">🚚</div>
 
-                    <div class="truck-details">
-                        <div>
-                            <span>Truck Number</span>
-                            <strong>Not assigned</strong>
-                        </div>
-                        <div>
-                            <span>Fuel Type</span>
-                            <strong>—</strong>
-                        </div>
-                        <div>
-                            <span>Truck Capacity</span>
-                            <strong>—</strong>
-                        </div>
-                        <div>
-                            <span>Vehicle Status</span>
-                            <strong class="neutral-status">Not available</strong>
-                        </div>
-                    </div>
+                    {% if assigned_truck %}
 
-                    <p class="info-note">
-                        Your assigned vehicle details will appear here
-                        once they are connected to the system.
-                    </p>
+                        <div class="truck-details">
+                            <div>
+                                <span>Truck Number</span>
+                                <strong>{{ assigned_truck.truck_number }}</strong>
+                            </div>
+
+                            <div>
+                                <span>Fuel Type</span>
+                                <strong>{{ assigned_truck.get_fuel_type_display }}</strong>
+                            </div>
+
+                            <div>
+                                <span>Truck Capacity</span>
+                                <strong>{{ assigned_truck.capacity }}</strong>
+                            </div>
+
+                            <div>
+                                <span>Vehicle Status</span>
+                                <strong>{{ assigned_truck.get_status_display }}</strong>
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <div class="truck-details">
+                            <div>
+                                <span>Truck Number</span>
+                                <strong>Not assigned</strong>
+                            </div>
+
+                            <div>
+                                <span>Fuel Type</span>
+                                <strong>—</strong>
+                            </div>
+
+                            <div>
+                                <span>Truck Capacity</span>
+                                <strong>—</strong>
+                            </div>
+
+                            <div>
+                                <span>Vehicle Status</span>
+                                <strong class="neutral-status">Not available</strong>
+                            </div>
+                        </div>
+
+                        <p class="info-note">
+                            Your assigned vehicle details will appear here
+                            once they are connected to the system.
+                        </p>
+
+                    {% endif %}
                 </article>
 
-                <article class="panel" id="route">
-                    <div class="panel-header">
-                        <div>
-                            <h3>Today's Route</h3>
-                            <p>Your scheduled collection route</p>
-                        </div>
-                        <span class="panel-icon">📍</span>
+
+                
+                {% if todays_assignments %}
+
+                    <div class="route-list">
+                        {% for assignment in todays_assignments %}
+                            <div class="route-item">
+                                <div class="route-stop">
+                                    <span class="stop-number">{{ forloop.counter }}</span>
+                                    <div>
+                                        <strong>{{ assignment.route }}</strong>
+                                        <small>
+                                            {{ assignment.get_status_display }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
+
+                    <div class="route-footer">
+                        <span>Today's scheduled collections</span>
+                        <strong>{{ todays_assignments|length }}</strong>
+                    </div>
+
+                    <div class="progress-track">
+                        <div class="progress-fill"
+                            style="width: {% widthratio completed_today todays_assignments|length 100 %}%">
+                        </div>
+                    </div>
+
+                {% else %}
 
                     <div class="route-empty">
                         <div class="empty-icon">⌖</div>
@@ -226,19 +280,22 @@
                     </div>
 
                     <div class="route-footer">
-                        <span>Route progress</span>
-                        <strong>—</strong>
+                        <span>Today's scheduled collections</span>
+                        <strong>0</strong>
                     </div>
 
                     <div class="progress-track">
-                        <div class="progress-fill"></div>
+                        <div class="progress-fill" style="width: 0%"></div>
                     </div>
-                </article>
+
+                {% endif %}
+
 
             </section>
 
             <!-- Collections -->
             <section class="panel collections-panel" id="collections">
+
                 <div class="panel-header collections-header">
                     <div>
                         <h3>Collection Tasks</h3>
@@ -256,33 +313,63 @@
 
                 <div class="table-wrapper">
                     <table class="data-table" id="taskTable">
+
                         <thead>
                             <tr>
                                 <th>Stop</th>
                                 <th>Location</th>
                                 <th>Waste Type</th>
-                                <th>Scheduled Time</th>
+                                <th>Scheduled Date</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            <tr class="empty-row">
-                                <td colspan="5">
-                                    <div class="table-empty">
-                                        <span>♻</span>
-                                        <strong>No collection tasks available</strong>
-                                        <p>Assigned tasks will appear here.</p>
-                                    </div>
-                                </td>
-                            </tr>
+
+                            {% for assignment in all_assignments %}
+
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+
+                                    <td>{{ assignment.route }}</td>
+
+                                    <td>
+                                        {{ assignment.truck.get_compatible_waste_type_display }}
+                                    </td>
+
+                                    <td>
+                                        {{ assignment.scheduled_date|date:"d M Y" }}
+                                    </td>
+
+                                    <td>
+                                        {{ assignment.get_status_display }}
+                                    </td>
+                                </tr>
+
+                            {% empty %}
+
+                                <tr class="empty-row">
+                                    <td colspan="5">
+                                        <div class="table-empty">
+                                            <span>♻</span>
+                                            <strong>No collection tasks available</strong>
+                                            <p>Assigned tasks will appear here.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+
                         </tbody>
+
                     </table>
                 </div>
+
             </section>
 
             <!-- Recent Activity -->
             <section class="panel activity-panel" id="activity">
+
                 <div class="panel-header">
                     <div>
                         <h3>Recent Activity</h3>
@@ -290,14 +377,39 @@
                     </div>
                 </div>
 
-                <div class="activity-empty">
-                    <span class="activity-icon">◷</span>
-                    <div>
-                        <strong>No recent activity</strong>
-                        <p>Your collection and route updates will appear here.</p>
-                    </div>
+                <div class="activity-list">
+
+                    {% for activity in recent_activities %}
+
+                        <div class="activity-item">
+
+                            <div class="activity-icon">✓</div>
+
+                            <div class="activity-details">
+                                <p>{{ activity.description }}</p>
+                                <small>
+                                    {{ activity.created_at|date:"d M Y, h:i A" }}
+                                </small>
+                            </div>
+
+                        </div>
+
+                    {% empty %}
+
+                        <div class="activity-empty">
+                            <span class="activity-icon">◷</span>
+                            <div>
+                                <strong>No recent activity</strong>
+                                <p>Your completed collections will appear here.</p>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
                 </div>
+
             </section>
+
 
             <footer class="dashboard-footer">
                 <span>WTMS · Noida Authority</span>

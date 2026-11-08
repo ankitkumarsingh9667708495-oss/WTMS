@@ -24,4 +24,6 @@ urlpatterns = [
     path('driver/my-assignments/', api_views.my_assignments_api, name='my_assignments_api'),
     path('driver/my-assignments/<int:pk>/', api_views.my_assignment_detail_api, name='my_assignment_detail_api'),
     path('driver/my-assignments/<int:pk>/update-status/', api_views.driver_update_assignment_status_api, name='driver_update_assignment_status_api'),
+    path('driver/dashboard/stats/', api_views.driver_dashboard_stats_api, name='driver_dashboard_stats_api'),
+    path('driver/dashboard/activities/', api_views.driver_dashboard_activities_api, name='driver_dashboard_activities_api'),
 ]
