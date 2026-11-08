@@ -191,9 +191,9 @@ def driver_dashboard(request):
     all_assignments = assignments.select_related(
         'truck'
     ).order_by('-scheduled_date')
+    
     recent_activities = Activity.objects.filter(
-        action='collection_completed',
-        description__icontains=driver.full_name
+        driver=driver
     ).order_by('-created_at')[:5]
 
     context = {

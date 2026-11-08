@@ -153,7 +153,8 @@ def driver_create(request):
                 description=(
                     f'Driver {driver.full_name} was registered '
                     f'successfully.'
-                )
+                ),
+                driver = driver
             )
 
             messages.success(
@@ -295,7 +296,8 @@ def collection_assignment_create(request):
                             f'{driver.full_name} was assigned to '
                             f'route {assignment.route} using truck '
                             f'{truck.truck_number}.'
-                        )
+                        ),
+                        driver = driver
                     )
 
             if form.errors:
@@ -401,15 +403,12 @@ def collection_assignment_update_status(request, pk):
                 pk=assignment.truck_id
             )
 
-            other_active_assignments = (
-                CollectionAssignment.objects.filter(
-                    truck_id=assignment.truck_id,
-                    status__in=['assigned', 'in_progress']
-                ).exclude(pk=assignment.pk)
-            )
+            other_active_assignments = CollectionAssignment.objects.filter(
+                truck_id=assignment.truck_id,
+                status__in=['assigned', 'in_progress']
+            ).exclude(pk=assignment.pk)
 
-            # Clear the driver only if this truck is still
-            # assigned to the driver who completed this collection.
+            # Release the truck if no other active assignment exists.
             if (
                 not other_active_assignments.exists()
                 and truck.assigned_driver_id == assignment.driver_id
@@ -417,15 +416,16 @@ def collection_assignment_update_status(request, pk):
                 truck.assigned_driver = None
                 truck.save(update_fields=['assigned_driver'])
 
-                Activity.objects.create(
-                    action='collection_completed',
-                    description=(
-                        f'{assignment.driver.full_name} completed the collection '
-                        f'for route {assignment.route} using truck '
-                        f'{truck.truck_number}.'
-                    )
-                )
-
+            # Always create an activity when a collection is completed.
+            Activity.objects.create(
+                action='collection_completed',
+                description=(
+                    f'{assignment.driver.full_name} completed the collection '
+                    f'for route {assignment.route} using truck '
+                    f'{truck.truck_number}.'
+                ),
+                driver=assignment.driver
+            )
         messages.success(
             request,
             f'Assignment status updated to '

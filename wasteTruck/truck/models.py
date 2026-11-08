@@ -141,7 +141,17 @@ class Activity(models.Model):
         max_length=30,
         choices=ACTION_CHOICES
     )
+
     description = models.CharField(max_length=255)
+
+    driver = models.ForeignKey(
+        Driver,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='activities'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

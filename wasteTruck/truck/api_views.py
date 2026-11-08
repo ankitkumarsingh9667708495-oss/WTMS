@@ -483,15 +483,15 @@ def assignment_api_partial_update(request, pk):
                 truck.assigned_driver = None
                 truck.save(update_fields=['assigned_driver'])
 
-                Activity.objects.create(
-                    action='collection_completed',
-                    description=(
-                        f'{assignment.driver.full_name} completed the collection '
-                        f'for route {assignment.route} using truck '
-                        f'{truck.truck_number}.'
-                    )
-                )
-
+            Activity.objects.create(
+                action='collection_completed',
+                description=(
+                    f'{assignment.driver.full_name} completed the collection '
+                    f'for route {assignment.route} using truck '
+                    f'{truck.truck_number}.'
+                ),
+                driver=assignment.driver
+            )
         serializer = CollectionAssignmentSerializer(assignment)
         return Response(serializer.data, status=200)
 
@@ -774,8 +774,7 @@ def driver_dashboard_activities_api(request):
     driver = request.user.driver_profile
 
     activities = Activity.objects.filter(
-        action='collection_completed',
-        description__icontains=driver.full_name
+        driver=driver
     ).order_by('-created_at')[:5]
 
     data = []
